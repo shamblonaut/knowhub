@@ -1,23 +1,16 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState } from "react";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-    const [user, setUser] = useState(null);
-    const [token, setToken] = useState(null);
-
-    useEffect(() => {
+    const [user, setUser] = useState(() => {
         const savedUser = localStorage.getItem("user");
-        const savedToken = localStorage.getItem("access_token");
-        if (savedUser && savedToken) {
-            try {
-                setUser(JSON.parse(savedUser));
-                setToken(savedToken);
-            } catch (err) {
-                console.error("Failed to parse saved user", err);
-            }
+        if (savedUser) {
+            try { return JSON.parse(savedUser); } catch (e) { console.error("Failed to parse saved user", e); }
         }
-    }, []);
+        return null;
+    });
+    const [token, setToken] = useState(() => localStorage.getItem("access_token"));
 
     const login = (userData, accessToken, refreshToken) => {
         setUser(userData);
@@ -44,4 +37,5 @@ export function AuthProvider({ children }) {
     );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => useContext(AuthContext);

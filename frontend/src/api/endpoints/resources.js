@@ -83,7 +83,6 @@ export const downloadResource = (id, filename) => {
         return;
     }
     // Direct browser download
-    const token = localStorage.getItem("access_token");
     const a = document.createElement("a");
     a.href = `http://localhost:8000/api/v1/resources/${id}/download/`;
     a.download = filename;
