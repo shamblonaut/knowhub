@@ -28,10 +28,11 @@ def process(resource_id: str):
     ResourceChunk.objects(resource_id=r.id).delete()   # idempotent
     ResourceChunk.objects.insert([
         ResourceChunk(
-            resource_id=r.id, resource_title=r.title, subject_code=subject_code,
+            resource_id=r.id, resource_title=r.title, subject_id=r.subject_id, subject_code=subject_code,
             semester=r.semester, chunk_index=c['index'], chunk_text=c['text'],
             embedding=emb, page_number=c['page']
         )
         for c, emb in zip(chunks, embeddings)
     ])
+
     print(f'[RAG] Indexed {len(chunks)} chunks — "{r.title}"')
