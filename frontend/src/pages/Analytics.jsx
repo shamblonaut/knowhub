@@ -4,7 +4,6 @@ import {
     getUploadsBySemester,
     getTopResources,
     getUploadsByFormat,
-    getFacultyActivity,
 } from "../api/endpoints/analytics";
 import Layout from "../components/Layout";
 import Spinner from "../components/Spinner";
@@ -64,6 +63,11 @@ export default function Analytics() {
         queryFn: getUploadsByFormat,
     });
 
+    const filteredByFormat = (byFormat?.data || []).filter((d) => d.count > 0);
+    const hasUploadsBySem = (bySem?.data || []).some((d) => d.count > 0);
+    const hasUploadsByFormat = filteredByFormat.length > 0;
+    const hasTopDownloads = (topRes?.data || []).some((d) => d.download_count > 0);
+
     if (isLoading)
         return (
             <Layout>
@@ -104,83 +108,91 @@ export default function Analytics() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Uploads by Semester */}
-                <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-                    <h2 className="text-sm font-semibold text-gray-700 mb-4">
-                        Uploads by Semester
-                    </h2>
-                    <ResponsiveContainer width="100%" height={220}>
-                        <BarChart
-                            data={bySem?.data || []}
-                            margin={{ top: 0, right: 0, left: -20, bottom: 0 }}
-                        >
-                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                            <XAxis
-                                dataKey="semester"
-                                tickFormatter={(s) => `Sem ${s}`}
-                                tick={{ fontSize: 11 }}
-                            />
-                            <YAxis tick={{ fontSize: 11 }} />
-                            <Tooltip formatter={(v) => [v, "Uploads"]} />
-                            <Bar dataKey="count" fill="#2E86AB" radius={[4, 4, 0, 0]} />
-                        </BarChart>
-                    </ResponsiveContainer>
-                </div>
+                {hasUploadsBySem && (
+                    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+                        <h2 className="text-sm font-semibold text-gray-700 mb-4">
+                            Uploads by Semester
+                        </h2>
+                        <ResponsiveContainer width="100%" height={220}>
+                            <BarChart
+                                data={bySem?.data || []}
+                                margin={{ top: 0, right: 0, left: -20, bottom: 0 }}
+                            >
+                                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                                <XAxis
+                                    dataKey="semester"
+                                    tickFormatter={(s) => `Sem ${s}`}
+                                    tick={{ fontSize: 11 }}
+                                />
+                                <YAxis tick={{ fontSize: 11 }} />
+                                <Tooltip formatter={(v) => [v, "Uploads"]} />
+                                <Bar dataKey="count" fill="#2E86AB" radius={[4, 4, 0, 0]} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                )}
 
                 {/* Uploads by Format */}
-                <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-                    <h2 className="text-sm font-semibold text-gray-700 mb-4">
-                        Uploads by Format
-                    </h2>
-                    <ResponsiveContainer width="100%" height={220}>
-                        <PieChart>
-                            <Pie
-                                data={byFormat?.data || []}
-                                dataKey="count"
-                                nameKey="format"
-                                cx="50%"
-                                cy="50%"
-                                outerRadius={80}
-                                label={({ format, percent }) =>
-                                    `${format} ${(percent * 100).toFixed(0)}%`
-                                }
-                            >
-                                {(byFormat?.data || []).map((_, i) => (
-                                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                                ))}
-                            </Pie>
-                            <Tooltip />
-                        </PieChart>
-                    </ResponsiveContainer>
-                </div>
+                {hasUploadsByFormat && (
+                    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+                        <h2 className="text-sm font-semibold text-gray-700 mb-4">
+                            Uploads by Format
+                        </h2>
+                        <ResponsiveContainer width="100%" height={220}>
+                            <PieChart>
+                                <Pie
+                                    data={filteredByFormat}
+                                    dataKey="count"
+                                    nameKey="format"
+                                    cx="50%"
+                                    cy="50%"
+                                    outerRadius={80}
+                                    label={({ format, percent }) =>
+                                        `${format} ${(percent * 100).toFixed(0)}%`
+                                    }
+                                >
+                                    {filteredByFormat.map((_, i) => (
+                                        <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                                    ))}
+                                </Pie>
+                                <Tooltip />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </div>
+                )}
 
                 {/* Top Resources */}
-                <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 md:col-span-2">
-                    <h2 className="text-sm font-semibold text-gray-700 mb-4">
-                        Top 10 Most Downloaded
-                    </h2>
-                    <ResponsiveContainer width="100%" height={240}>
-                        <BarChart
-                            data={topRes?.data || []}
-                            layout="vertical"
-                            margin={{ top: 0, right: 20, left: 0, bottom: 0 }}
-                        >
-                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                            <XAxis type="number" tick={{ fontSize: 11 }} />
-                            <YAxis
-                                type="category"
-                                dataKey="title"
-                                tick={{ fontSize: 10 }}
-                                width={180}
-                            />
-                            <Tooltip formatter={(v) => [v, "Downloads"]} />
-                            <Bar
-                                dataKey="download_count"
-                                fill="#1E3A5F"
-                                radius={[0, 4, 4, 0]}
-                            />
-                        </BarChart>
-                    </ResponsiveContainer>
-                </div>
+                {hasTopDownloads && (
+                    <div className={`bg-white rounded-xl border border-gray-100 shadow-sm p-5 ${(hasUploadsBySem || hasUploadsByFormat) ? 'md:col-span-2' : ''}`}>
+                        <h2 className="text-sm font-semibold text-gray-700 mb-4">
+                            Top 10 Most Downloaded
+                        </h2>
+                        <ResponsiveContainer width="100%" height={Math.max(300, (topRes?.data || []).length * 40)}>
+                            <BarChart
+                                data={topRes?.data || []}
+                                layout="vertical"
+                                margin={{ top: 0, right: 20, left: 0, bottom: 0 }}
+                                barSize={20}
+                            >
+                                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+                                <XAxis type="number" tick={{ fontSize: 11 }} />
+                                <YAxis
+                                    type="category"
+                                    dataKey="title"
+                                    tick={{ fontSize: 11 }}
+                                    width={180}
+                                    interval={0}
+                                />
+                                <Tooltip formatter={(v) => [v, "Downloads"]} />
+                                <Bar
+                                    dataKey="download_count"
+                                    fill="#1E3A5F"
+                                    radius={[0, 4, 4, 0]}
+                                />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                )}
             </div>
         </Layout>
     );
