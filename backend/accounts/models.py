@@ -20,5 +20,9 @@ class User(me.Document):
 
     meta = {"collection": "users", "indexes": ["email", "usn", "role"]}
 
+    @property
+    def is_authenticated(self):
+        return True
+
     def __str__(self):
         return f"{self.name} ({self.role})"
