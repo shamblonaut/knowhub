@@ -21,6 +21,7 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
+    "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.staticfiles",
     "rest_framework",
@@ -62,7 +63,7 @@ mongoengine.connect(db="knowledge_hub", host="localhost", port=27017)
 # DRF + JWT
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "accounts.authentication.MongoJWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
 }
