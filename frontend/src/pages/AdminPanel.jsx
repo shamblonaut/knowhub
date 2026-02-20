@@ -5,8 +5,7 @@ import {
     createSubject,
     deleteSubject,
 } from "../api/endpoints/subjects";
-import { createFaculty, setUserActive } from "../api/endpoints/auth";
-import { MOCK_FACULTY_USERS } from "../api/mock";
+import { createFaculty, setUserActive, getFaculties } from "../api/endpoints/auth";
 import Layout from "../components/Layout";
 import Spinner from "../components/Spinner";
 import Badge from "../components/Badge";
@@ -26,6 +25,12 @@ function SubjectsTab() {
         queryKey: ["subjects"],
         queryFn: () => getSubjects(),
     });
+
+    const { data: faculties } = useQuery({
+        queryKey: ["faculties"],
+        queryFn: getFaculties,
+    });
+    const facultyList = faculties || [];
 
     const createMutation = useMutation({
         mutationFn: createSubject,
@@ -48,7 +53,7 @@ function SubjectsTab() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        const faculty = MOCK_FACULTY_USERS.find((f) => f.id === form.faculty_id);
+        const faculty = facultyList.find((f) => f.id === form.faculty_id);
         createMutation.mutate({
             ...form,
             semester: Number(form.semester),
@@ -172,7 +177,7 @@ function SubjectsTab() {
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-accent focus:outline-none"
                         >
                             <option value="">None</option>
-                            {MOCK_FACULTY_USERS.map((fac) => (
+                            {facultyList.map((fac) => (
                                 <option key={fac.id} value={fac.id}>
                                     {fac.name}
                                 </option>
@@ -202,7 +207,7 @@ function FacultyTab() {
 
     const { data: faculties, isLoading } = useQuery({
         queryKey: ["faculties"],
-        queryFn: async () => MOCK_FACULTY_USERS,
+        queryFn: getFaculties,
     });
 
     const createMutation = useMutation({
@@ -276,8 +281,8 @@ function FacultyTab() {
                                                     })
                                                 }
                                                 className={`${fac.is_active
-                                                        ? "text-red-500 hover:text-red-700"
-                                                        : "text-green-600 hover:text-green-800"
+                                                    ? "text-red-500 hover:text-red-700"
+                                                    : "text-green-600 hover:text-green-800"
                                                     } font-medium text-xs`}
                                             >
                                                 {fac.is_active ? "Deactivate" : "Activate"}
@@ -366,8 +371,8 @@ export default function AdminPanel() {
                         key={t}
                         onClick={() => setTab(t)}
                         className={`px-4 py-2 text-sm font-medium capitalize border-b-2 transition ${tab === t
-                                ? "border-accent text-accent"
-                                : "border-transparent text-gray-500 hover:text-gray-800"
+                            ? "border-accent text-accent"
+                            : "border-transparent text-gray-500 hover:text-gray-800"
                             }`}
                     >
                         {t}

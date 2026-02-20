@@ -1,5 +1,5 @@
 import api from "../axios";
-import { USE_MOCK } from "../config";
+import { API_BASE, USE_MOCK } from "../config";
 import { MOCK_RESOURCES, MOCK_PENDING_RESOURCES } from "../mock";
 
 export const getResources = async (filters = {}) => {
@@ -83,8 +83,9 @@ export const downloadResource = (id, filename) => {
         return;
     }
     // Direct browser download
+    const token = localStorage.getItem("access_token");
     const a = document.createElement("a");
-    a.href = `http://localhost:8000/api/v1/resources/${id}/download/`;
+    a.href = `${API_BASE}/resources/${id}/download/?token=${token}`;
     a.download = filename;
     a.click();
 };

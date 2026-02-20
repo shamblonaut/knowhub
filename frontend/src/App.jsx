@@ -3,7 +3,7 @@ import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "./context/AuthContext";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Layout from "./components/Layout";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import Repository from "./pages/Repository";
 import Upload from "./pages/Upload";
@@ -21,13 +21,50 @@ function App() {
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/repository" element={<Repository />} />
-          <Route path="/upload" element={<Upload />} />
-          <Route path="/review" element={<Review />} />
-          <Route path="/notices" element={<Notices />} />
-          <Route path="/admin" element={<AdminPanel />} />
-          <Route path="/analytics" element={<Analytics />} />
+
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/repository" element={
+            <ProtectedRoute>
+              <Repository />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/upload" element={
+            <ProtectedRoute>
+              <Upload />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/review" element={
+            <ProtectedRoute allowedRoles={["hod", "faculty"]}>
+              <Review />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/notices" element={
+            <ProtectedRoute>
+              <Notices />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/analytics" element={
+            <ProtectedRoute allowedRoles={["hod"]}>
+              <Analytics />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/admin" element={
+            <ProtectedRoute allowedRoles={["hod"]}>
+              <AdminPanel />
+            </ProtectedRoute>
+          } />
+
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </Router>
     </AuthProvider>

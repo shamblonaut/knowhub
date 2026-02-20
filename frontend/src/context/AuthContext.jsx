@@ -1,4 +1,5 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
+import { getMe } from "../api/endpoints/auth";
 
 const AuthContext = createContext();
 
@@ -11,6 +12,27 @@ export function AuthProvider({ children }) {
         return null;
     });
     const [token, setToken] = useState(() => localStorage.getItem("access_token"));
+    const [loading, setLoading] = useState(!!token);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            if (token) {
+                try {
+                    const userData = await getMe();
+                    setUser(userData);
+                    localStorage.setItem("user", JSON.stringify(userData));
+                } catch (err) {
+                    console.error("Session invalid", err);
+                    logout();
+                } finally {
+                    setLoading(false);
+                }
+            } else {
+                setLoading(false);
+            }
+        };
+        fetchUser();
+    }, [token]);
 
     const login = (userData, accessToken, refreshToken) => {
         setUser(userData);
@@ -31,7 +53,7 @@ export function AuthProvider({ children }) {
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, login, logout }}>
+        <AuthContext.Provider value={{ user, token, loading, login, logout }}>
             {children}
         </AuthContext.Provider>
     );

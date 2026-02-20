@@ -61,6 +61,11 @@ export const setUserActive = async (userId, isActive) => {
         .then((r) => r.data);
 };
 
+export const getFaculties = async () => {
+    if (USE_MOCK) return MOCK_FACULTY_USERS;
+    return api.get("/auth/users/", { params: { role: "faculty" } }).then((r) => r.data);
+};
+
 // DEV HELPER: Switch mock role without reloading
 export const _setMockRole = (role) => {
     const map = {

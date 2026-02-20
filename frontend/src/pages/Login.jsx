@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { login } from "../api/endpoints/auth";
 import Spinner from "../components/Spinner";
@@ -11,6 +11,8 @@ export default function Login() {
     const [loading, setLoading] = useState(false);
     const { login: authLogin } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+    const from = location.state?.from?.pathname || "/dashboard";
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -19,7 +21,7 @@ export default function Login() {
             const data = await login({ email, password });
             authLogin(data.user, data.access, data.refresh);
             toast.success(`Welcome back, ${data.user.name}!`);
-            navigate("/dashboard");
+            navigate(from, { replace: true });
         } catch (err) {
             toast.error(err?.response?.data?.error || "Login failed.");
         } finally {
