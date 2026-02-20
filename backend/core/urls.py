@@ -8,4 +8,5 @@ urlpatterns = [
     path('api/v1/', include('repository.urls')),
     path('api/v1/', include('notices.urls')),
     path('api/v1/', include('search.urls')),
+    path('api/v1/', include('rag.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

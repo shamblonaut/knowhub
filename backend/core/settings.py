@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     "notices",
     "analytics",
     "search",
+    "rag",
 ]
 
 MIDDLEWARE = [
