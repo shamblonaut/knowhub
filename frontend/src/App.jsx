@@ -9,6 +9,7 @@ import Repository from "./pages/Repository";
 import Upload from "./pages/Upload";
 import Review from "./pages/Review";
 import Notices from "./pages/Notices";
+import AdminPanel from "./pages/AdminPanel";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="/upload" element={<Upload />} />
           <Route path="/review" element={<Review />} />
           <Route path="/notices" element={<Notices />} />
+          <Route path="/admin" element={<AdminPanel />} />
         </Routes>
       </Router>
     </AuthProvider>
