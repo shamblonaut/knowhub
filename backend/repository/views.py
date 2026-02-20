@@ -446,3 +446,106 @@ class ResourceDownloadView(APIView):
             f'attachment; filename="{resource.original_filename}"'
         )
         return response
+
+
+class ResourcePendingView(APIView):
+    """
+    GET: List all pending resources.
+    Faculty sees resources for their subjects.
+    HOD sees all.
+    """
+
+    permission_classes = [IsAuthenticated, IsFacultyOrHOD]
+
+    def get(self, request):
+        qs = Resource.objects(status="pending")
+
+        if request.user.role == "faculty":
+            qs = qs.filter(subject_id__in=request.user.subject_ids)
+
+        results = list(qs.order_by("upload_date"))
+        return Response(
+            {
+                "count": len(results),
+                "results": [serialize_resource(r) for r in results],
+            }
+        )
+
+
+class ResourceApproveView(APIView):
+    """
+    POST: Approve a pending resource.
+    Triggers embedding generation in the background.
+    """
+
+    permission_classes = [IsAuthenticated, IsFacultyOrHOD]
+
+    def post(self, request, resource_id):
+        try:
+            resource = Resource.objects.get(id=ObjectId(resource_id))
+        except Exception:
+            return Response({"error": "Resource not found."}, status=404)
+
+        if resource.status != "pending":
+            return Response({"error": "Resource is not pending."}, status=400)
+
+        # Faculty scope check
+        if request.user.role == "faculty":
+            if resource.subject_id not in request.user.subject_ids:
+                return Response({"error": "You do not own this subject."}, status=403)
+
+        resource.status = "approved"
+        resource.reviewed_by = request.user.id
+        resource.reviewed_at = datetime.utcnow()
+        resource.save()
+
+        # Generate embedding now that it's approved
+        threading.Thread(
+            target=generate_embedding, args=(str(resource.id),), daemon=True
+        ).start()
+
+        return Response(
+            {
+                "message": "Resource approved.",
+                "resource_id": str(resource.id),
+                "status": "approved",
+            }
+        )
+
+
+class ResourceRejectView(APIView):
+    """
+    POST: Reject a pending resource and delete its file.
+    """
+
+    permission_classes = [IsAuthenticated, IsFacultyOrHOD]
+
+    def post(self, request, resource_id):
+        try:
+            resource = Resource.objects.get(id=ObjectId(resource_id))
+        except Exception:
+            return Response({"error": "Resource not found."}, status=404)
+
+        if resource.status != "pending":
+            return Response({"error": "Resource is not pending."}, status=400)
+
+        # Faculty scope check
+        if request.user.role == "faculty":
+            if resource.subject_id not in request.user.subject_ids:
+                return Response({"error": "You do not own this subject."}, status=403)
+
+        # Delete file from disk
+        delete_file_if_exists(resource.file_path)
+
+        resource.status = "rejected"
+        resource.reviewed_by = request.user.id
+        resource.reviewed_at = datetime.utcnow()
+        resource.save()
+
+        return Response(
+            {
+                "message": "Resource rejected and deleted.",
+                "resource_id": str(resource.id),
+                "status": "rejected",
+            }
+        )
