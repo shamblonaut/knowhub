@@ -93,7 +93,7 @@ def seed():
     statuses = ["approved", "pending", "rejected"]
 
     # Generate embeddings arbitrarily (mock data)
-    mock_embedding = [random.uniform(-1, 1) for _ in range(1536)] if hasattr(Resource, 'embedding') else []
+    mock_embedding = [random.uniform(-1, 1) for _ in range(384)] if hasattr(Resource, 'embedding') else []
 
     resource_count = 0
     for subject in saved_subjects:
