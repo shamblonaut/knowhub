@@ -2,6 +2,7 @@ import os
 import threading
 import mimetypes
 from datetime import datetime
+from rag.pipeline import process
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -340,10 +341,13 @@ class ResourceUploadView(APIView):
 
         resource.save()
 
-        # Trigger embedding generation in background if approved
+        # Trigger embedding and RAG pipeline generation in background if approved
         if status == "approved":
             threading.Thread(
                 target=generate_embedding, args=(str(resource.id),), daemon=True
+            ).start()
+            threading.Thread(
+                target=process, args=(str(resource.id),), daemon=True
             ).start()
 
         return Response(serialize_resource(resource), status=201)
@@ -543,9 +547,12 @@ class ResourceApproveView(APIView):
         resource.reviewed_at = datetime.utcnow()
         resource.save()
 
-        # Generate embedding now that it's approved
+        # Generate embedding and RAG pipeline now that it's approved
         threading.Thread(
             target=generate_embedding, args=(str(resource.id),), daemon=True
+        ).start()
+        threading.Thread(
+            target=process, args=(str(resource.id),), daemon=True
         ).start()
 
         return Response(
