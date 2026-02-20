@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
+import Repository from "./pages/Repository";
 function App() {
   return (
     <AuthProvider>
@@ -15,6 +16,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/repository" element={<Repository />} />
         </Routes>
       </Router>
     </AuthProvider>
