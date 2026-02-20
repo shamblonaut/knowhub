@@ -7,6 +7,7 @@ import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
 import Repository from "./pages/Repository";
 import Upload from "./pages/Upload";
+import Review from "./pages/Review";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/repository" element={<Repository />} />
           <Route path="/upload" element={<Upload />} />
+          <Route path="/review" element={<Review />} />
         </Routes>
       </Router>
     </AuthProvider>
