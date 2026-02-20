@@ -16,7 +16,7 @@ def stream(prompt):
     """Generator yielding text tokens."""
     try:
         import ollama
-        for chunk in ollama.chat(model='llama3.2:3b',
+        for chunk in ollama.chat(model='llama3.2:1b',
                                   messages=[{'role':'user','content':prompt}],
                                   stream=True):
             t = chunk.get('message',{}).get('content','')

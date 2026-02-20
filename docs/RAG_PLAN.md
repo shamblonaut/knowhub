@@ -1,6 +1,6 @@
 # Knowledge Hub — RAG Integration Plan
 > Brief implementation guide for both backend and frontend.
-> Stack adds: PyMuPDF · python-pptx · python-docx · tiktoken · Ollama (llama3.2:3b)
+> Stack adds: PyMuPDF · python-pptx · python-docx · tiktoken · Ollama (llama3.2:1b)
 
 ---
 
@@ -34,7 +34,7 @@ pip install pymupdf python-pptx python-docx tiktoken ollama
 # Install + start Ollama
 curl -fsSL https://ollama.com/install.sh | sh
 ollama serve          # keep this running
-ollama pull llama3.2:3b
+ollama pull llama3.2:1b
 ```
 
 ---
@@ -280,7 +280,7 @@ def stream(prompt):
     """Generator yielding text tokens."""
     try:
         import ollama
-        for chunk in ollama.chat(model='llama3.2:3b',
+        for chunk in ollama.chat(model='llama3.2:1b',
                                   messages=[{'role':'user','content':prompt}],
                                   stream=True):
             t = chunk.get('message',{}).get('content','')
