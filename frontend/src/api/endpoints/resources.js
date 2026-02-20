@@ -47,6 +47,10 @@ export const getPendingResources = async () => {
         };
     return api.get("/resources/pending/").then((r) => r.data);
 };
+export const getMySubmissions = async (filters = {}) => {
+    if (USE_MOCK) return { count: 0, results: [] };
+    return api.get("/resources/my-submissions/", { params: filters }).then((r) => r.data);
+};
 
 export const approveResource = async (id) => {
     if (USE_MOCK) {

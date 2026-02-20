@@ -10,6 +10,7 @@ from .views import (
     ResourcePendingView,
     ResourceApproveView,
     ResourceRejectView,
+    ResourceMySubmissionsView,
 )
 
 urlpatterns = [
@@ -19,6 +20,7 @@ urlpatterns = [
     # Resource endpoints
     path("resources/", ResourceListView.as_view()),
     path("resources/pending/", ResourcePendingView.as_view()),
+    path("resources/my-submissions/", ResourceMySubmissionsView.as_view()),
     path("resources/upload/", ResourceUploadView.as_view()),
     path("resources/<str:resource_id>/", ResourceDetailView.as_view()),
     path("resources/<str:resource_id>/download/", ResourceDownloadView.as_view()),

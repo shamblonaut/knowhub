@@ -486,6 +486,36 @@ class ResourcePendingView(APIView):
         )
 
 
+class ResourceMySubmissionsView(APIView):
+    """
+    GET: List all resources uploaded by the current user (any status).
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if request.user.role != "student":
+            return Response({"error": "Only students can view their submissions."}, status=403)
+            
+        qs = Resource.objects(uploaded_by=request.user.id)
+        
+        # Pagination
+        page = int(request.query_params.get("page", 1))
+        page_size = 20
+        start = (page - 1) * page_size
+        total = qs.count()
+        results = list(qs.order_by("-upload_date")[start : start + page_size])
+
+        return Response(
+            {
+                "count": total,
+                "page": page,
+                "page_size": page_size,
+                "results": [serialize_resource(r) for r in results],
+            }
+        )
+
+
 class ResourceApproveView(APIView):
     """
     POST: Approve a pending resource.

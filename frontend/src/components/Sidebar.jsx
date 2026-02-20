@@ -20,6 +20,12 @@ const NAV = [
         icon: "⬆",
         roles: ["hod", "faculty", "student"],
     },
+    {
+        to: "/my-submissions",
+        label: "My Submissions",
+        icon: "📋",
+        roles: ["student"],
+    },
     { to: "/review", label: "Review", icon: "✅", roles: ["hod", "faculty"] },
     {
         to: "/notices",

@@ -1,7 +1,7 @@
 import os
 import sys
 import django
-from passlib.hash import bcrypt
+from accounts.utils import hash_password
 
 # Setup Django environment
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -47,7 +47,7 @@ def seed_users():
 
             # Hash password
             raw_password = data.pop('password')
-            data['password_hash'] = bcrypt.hash(raw_password)
+            data['password_hash'] = hash_password(raw_password)
 
             user = User(**data)
             user.save()

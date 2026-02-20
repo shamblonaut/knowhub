@@ -11,6 +11,7 @@ import Review from "./pages/Review";
 import Notices from "./pages/Notices";
 import AdminPanel from "./pages/AdminPanel";
 import Analytics from "./pages/Analytics";
+import MySubmissions from "./pages/MySubmissions";
 
 function App() {
   return (
@@ -37,6 +38,12 @@ function App() {
           <Route path="/upload" element={
             <ProtectedRoute>
               <Upload />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/my-submissions" element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <MySubmissions />
             </ProtectedRoute>
           } />
 
