@@ -158,6 +158,36 @@ class ActivateUserView(APIView):
         })
 
 
+class UsersListView(APIView):
+    permission_classes = [IsAuthenticated, IsHOD]
+
+    def get(self, request):
+        role = request.query_params.get('role')
+        if role:
+            users = User.objects(role=role)
+        else:
+            users = User.objects.all()
+
+        data = []
+        for user in users:
+            user_data = {
+                "id": str(user.id),
+                "name": user.name,
+                "email": user.email,
+                "role": user.role,
+                "is_active": user.is_active,
+                "created_at": user.created_at.isoformat() + "Z",
+            }
+            if user.role == 'student':
+                user_data['usn'] = user.usn
+                user_data['semester'] = user.semester
+            if user.role == 'faculty':
+                user_data['subject_ids'] = [str(sid) for sid in user.subject_ids]
+            data.append(user_data)
+            
+        return Response(data)
+
+
 class CustomTokenRefreshView(APIView):
     permission_classes = [AllowAny]
 

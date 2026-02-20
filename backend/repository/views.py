@@ -417,7 +417,21 @@ class ResourceDetailView(APIView):
         return Response({"message": "Resource deleted."})
 
 
+from accounts.authentication import MongoJWTAuthentication
+
+class QueryParamMongoJWTAuthentication(MongoJWTAuthentication):
+    def get_header(self, request):
+        """
+        Extracts the token from the request query parameters.
+        """
+        token = request.query_params.get('token')
+        if token:
+            # Fake an authorization header format so parent class can process it
+            return f"Bearer {token}".encode('utf-8')
+        return super().get_header(request)
+
 class ResourceDownloadView(APIView):
+    authentication_classes = [QueryParamMongoJWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request, resource_id):

@@ -8,9 +8,9 @@ from .views import (
 )
 
 urlpatterns = [
-    path('summary/', AnalyticsSummaryView.as_view()),
-    path('uploads/semester/', UploadsBySemesterView.as_view()),
-    path('resources/top/', TopResourcesView.as_view()),
-    path('faculty/activity/', FacultyActivityView.as_view()),
-    path('uploads/format/', UploadsByFormatView.as_view()),
+    path('analytics/summary/', AnalyticsSummaryView.as_view()),
+    path('analytics/uploads-by-semester/', UploadsBySemesterView.as_view()),
+    path('analytics/top-resources/', TopResourcesView.as_view()),
+    path('analytics/faculty-activity/', FacultyActivityView.as_view()),
+    path('analytics/uploads-by-format/', UploadsByFormatView.as_view()),
 ]

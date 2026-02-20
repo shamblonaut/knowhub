@@ -34,7 +34,7 @@ class Resource(me.Document):
 
     # Ownership
     uploaded_by = me.ObjectIdField(required=True)
-    uploader_role = me.StringField(required=True, choices=["faculty", "student"])
+    uploader_role = me.StringField(required=True, choices=["faculty", "student", "hod"])
 
     # Approval
     status = me.StringField(
