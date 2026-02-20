@@ -8,11 +8,13 @@ import FilterBar from "../components/FilterBar";
 import SearchBar from "../components/SearchBar";
 import Spinner from "../components/Spinner";
 import EmptyState from "../components/EmptyState";
+import RecommendPanel from "../components/RecommendPanel";
 import { Link } from "react-router-dom";
 
 export default function Repository() {
     const [filters, setFilters] = useState({});
     const [searchQuery, setSearchQuery] = useState("");
+    const [selected, setSelected] = useState(null);
 
     const isSearching = searchQuery.trim().length > 0;
 
@@ -81,9 +83,16 @@ export default function Repository() {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {resources.map((r) => (
-                        <FileCard key={r.id} resource={r} />
+                        <FileCard key={r.id} resource={r} onSelect={() => setSelected(r)} />
                     ))}
                 </div>
+            )}
+
+            {selected && (
+                <RecommendPanel
+                    resource={selected}
+                    onClose={() => setSelected(null)}
+                />
             )}
         </Layout>
     );

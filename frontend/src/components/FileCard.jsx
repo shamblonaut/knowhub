@@ -1,11 +1,14 @@
 import Badge from "./Badge";
 import { downloadResource } from "../api/endpoints/resources";
 
-export default function FileCard({ resource }) {
+export default function FileCard({ resource, onSelect }) {
     const isUrl = resource.resource_type === "url";
 
     return (
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 hover:shadow-md transition">
+        <div
+            className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 hover:shadow-md transition cursor-pointer"
+            onClick={onSelect}
+        >
             <div className="flex items-start justify-between gap-2 mb-3">
                 <div className="flex items-center gap-2 flex-wrap">
                     <Badge
@@ -43,14 +46,16 @@ export default function FileCard({ resource }) {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-xs text-accent font-medium hover:underline"
+                        onClick={(e) => e.stopPropagation()}
                     >
                         Open link →
                     </a>
                 ) : (
                     <button
-                        onClick={() =>
-                            downloadResource(resource.id, resource.original_filename)
-                        }
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            downloadResource(resource.id, resource.original_filename);
+                        }}
                         className="text-xs bg-primary text-white px-3 py-1.5 rounded-lg hover:bg-opacity-90 transition"
                     >
                         Download
