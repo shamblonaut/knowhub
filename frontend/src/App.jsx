@@ -4,7 +4,7 @@ import { AuthProvider } from "./context/AuthContext";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Layout from "./components/Layout";
-
+import Dashboard from "./pages/Dashboard";
 function App() {
   return (
     <AuthProvider>
@@ -14,7 +14,7 @@ function App() {
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/dashboard" element={<Layout><div className="p-8 text-center text-xl font-bold">Dashboard Placeholder (Stage 5)</div></Layout>} />
+          <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </Router>
     </AuthProvider>

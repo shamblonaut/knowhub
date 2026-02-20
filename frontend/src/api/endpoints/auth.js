@@ -8,6 +8,10 @@ let ACTIVE_MOCK_USER = MOCK_USER_HOD;
 
 export const login = async ({ email, password }) => {
     if (USE_MOCK) {
+        if (email.includes("hod")) ACTIVE_MOCK_USER = MOCK_USER_HOD;
+        else if (email.includes("faculty")) ACTIVE_MOCK_USER = MOCK_USER_FACULTY;
+        else if (email.includes("student")) ACTIVE_MOCK_USER = MOCK_USER_STUDENT;
+
         await new Promise((r) => setTimeout(r, 400)); // simulate network delay
         return {
             access: "mock_access_token",
