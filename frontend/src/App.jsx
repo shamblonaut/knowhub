@@ -12,6 +12,7 @@ import Notices from "./pages/Notices";
 import AdminPanel from "./pages/AdminPanel";
 import Analytics from "./pages/Analytics";
 import MySubmissions from "./pages/MySubmissions";
+import RAGChat from "./pages/RAGChat";
 
 function App() {
   return (
@@ -56,6 +57,12 @@ function App() {
           <Route path="/notices" element={
             <ProtectedRoute>
               <Notices />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/ask" element={
+            <ProtectedRoute>
+              <RAGChat />
             </ProtectedRoute>
           } />
 

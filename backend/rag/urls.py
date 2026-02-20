@@ -1,5 +1,6 @@
 from django.urls import path
+from .views import RAGAskView
 
 urlpatterns = [
-    # Paths will be added in Step 7
+    path('rag/ask/', RAGAskView.as_view()),
 ]

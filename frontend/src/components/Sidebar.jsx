@@ -33,6 +33,7 @@ const NAV = [
         icon: "📢",
         roles: ["hod", "faculty", "student"],
     },
+    { to: "/ask", label: "AI Assistant", icon: "🤖", roles: ["hod", "faculty", "student"] },
     { to: "/analytics", label: "Analytics", icon: "📊", roles: ["hod"] },
     { to: "/admin", label: "Admin Panel", icon: "⚙", roles: ["hod"] },
 ];
