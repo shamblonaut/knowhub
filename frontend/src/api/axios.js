@@ -17,9 +17,12 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
-            localStorage.removeItem("access_token");
-            localStorage.removeItem("refresh_token");
-            window.location.href = "/login";
+            // Do not reload/redirect if the 401 is from the login endpoint
+            if (error.config && !error.config.url.includes("/auth/login")) {
+                localStorage.removeItem("access_token");
+                localStorage.removeItem("refresh_token");
+                window.location.href = "/login";
+            }
         }
         return Promise.reject(error);
     }
