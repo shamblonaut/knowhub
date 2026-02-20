@@ -6,6 +6,8 @@ import Register from "./pages/Register";
 import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
 import Repository from "./pages/Repository";
+import Upload from "./pages/Upload";
+
 function App() {
   return (
     <AuthProvider>
@@ -17,6 +19,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/repository" element={<Repository />} />
+          <Route path="/upload" element={<Upload />} />
         </Routes>
       </Router>
     </AuthProvider>
