@@ -5,6 +5,8 @@ import { getSubjects, getSemesters } from "../api/endpoints/subjects";
 import Layout from "../components/Layout";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { useEffect } from "react";
 
 const ALLOWED = ["pdf", "ppt", "pptx", "doc", "docx", "jpg", "jpeg", "png"];
 
@@ -23,6 +25,13 @@ export default function Upload() {
     const [fileError, setFileError] = useState("");
     const queryClient = useQueryClient();
     const navigate = useNavigate();
+    const { user } = useAuth();
+
+    useEffect(() => {
+        if (user?.role === "student" && user?.semester) {
+            setForm((prev) => ({ ...prev, semester: user.semester.toString() }));
+        }
+    }, [user]);
 
     const { data: semData } = useQuery({
         queryKey: ["semesters"],
@@ -146,7 +155,8 @@ export default function Upload() {
                                 value={form.semester}
                                 onChange={handle}
                                 required
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-accent focus:outline-none"
+                                disabled={user?.role === "student"}
+                                className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-accent focus:outline-none ${user?.role === "student" ? "bg-gray-50 opacity-70" : ""}`}
                             >
                                 <option value="">Select</option>
                                 {(semData?.semesters || []).map((s) => (

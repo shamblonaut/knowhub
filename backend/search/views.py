@@ -26,7 +26,11 @@ class SearchView(APIView):
         qs = Resource.objects(status='approved')
 
         # Apply filters
-        if semester := request.query_params.get('semester'):
+        if request.user.role == "student":
+            qs = qs.filter(semester=request.user.semester)
+        elif request.user.role == "faculty":
+            qs = qs.filter(subject_id__in=request.user.subject_ids)
+        elif semester := request.query_params.get('semester'):
             try:
                 qs = qs.filter(semester=int(semester))
             except ValueError:
@@ -95,12 +99,23 @@ class RecommendView(APIView):
         if not target.embedding:
             return Response({"error": "Resource has no embedding yet."}, status=400)
 
+        if request.user.role == "student" and target.semester != request.user.semester:
+            return Response({"error": "Resource not found."}, status=404)
+        elif request.user.role == "faculty" and target.subject_id not in request.user.subject_ids:
+            return Response({"error": "Resource not found."}, status=404)
+
         # All other approved resources with embeddings
-        candidates = Resource.objects(
+        candidates_qs = Resource.objects(
             status='approved',
             id__ne=target.id,
             embedding__exists=True
         )
+        if request.user.role == "student":
+            candidates_qs = candidates_qs.filter(semester=request.user.semester)
+        elif request.user.role == "faculty":
+            candidates_qs = candidates_qs.filter(subject_id__in=request.user.subject_ids)
+
+        candidates = candidates_qs
 
         if not candidates:
             return Response({

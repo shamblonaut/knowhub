@@ -12,14 +12,20 @@ class RAGAskView(APIView):
 
     def post(self, request):
         question   = (request.data.get('question') or '').strip()
-        semester   = request.data.get('semester')
+        
+        if request.user.role == 'student':
+            semester = request.user.semester
+        else:
+            semester = request.data.get('semester')
+            
         subject_id = request.data.get('subject_id') or None
+        allowed_subject_ids = request.user.subject_ids if request.user.role == 'faculty' else None
 
         if not question:
             return Response({'error': 'question required'}, status=400)
 
         def events():
-            chunks = retrieve(question, semester=semester, subject_id=subject_id)
+            chunks = retrieve(question, semester=semester, subject_id=subject_id, allowed_subject_ids=allowed_subject_ids)
 
             if not chunks:
                 yield f"data: {json.dumps({'type':'no_context'})}\n\n"

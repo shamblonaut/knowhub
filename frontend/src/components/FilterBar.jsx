@@ -1,14 +1,20 @@
 import { useQuery } from "@tanstack/react-query";
 import { getSubjects, getSemesters } from "../api/endpoints/subjects";
+import { useAuth } from "../context/AuthContext";
 
 export default function FilterBar({ filters, onFilter }) {
+    const { user } = useAuth();
     const { data: semData } = useQuery({
         queryKey: ["semesters"],
         queryFn: getSemesters,
+        enabled: user?.role !== "student",
     });
+
+    const effectiveSemester = user?.role === "student" ? user.semester : filters.semester;
+
     const { data: subData } = useQuery({
-        queryKey: ["subjects", filters.semester],
-        queryFn: () => getSubjects(filters.semester || null),
+        queryKey: ["subjects", effectiveSemester],
+        queryFn: () => getSubjects(effectiveSemester || null),
     });
 
     const semesters = semData?.semesters || [];
@@ -19,18 +25,20 @@ export default function FilterBar({ filters, onFilter }) {
 
     return (
         <div className="flex flex-wrap gap-3 mb-6">
-            <select
-                value={filters.semester || ""}
-                onChange={(e) => handle("semester", e.target.value)}
-                className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-accent focus:outline-none"
-            >
-                <option value="">All Semesters</option>
-                {semesters.map((s) => (
-                    <option key={s} value={s}>
-                        Semester {s}
-                    </option>
-                ))}
-            </select>
+            {user?.role !== "student" && (
+                <select
+                    value={filters.semester || ""}
+                    onChange={(e) => handle("semester", e.target.value)}
+                    className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-accent focus:outline-none"
+                >
+                    <option value="">All Semesters</option>
+                    {semesters.map((s) => (
+                        <option key={s} value={s}>
+                            Semester {s}
+                        </option>
+                    ))}
+                </select>
+            )}
 
             <select
                 value={filters.subject || ""}

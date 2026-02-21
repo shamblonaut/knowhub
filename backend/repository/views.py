@@ -127,7 +127,12 @@ class SubjectListCreateView(APIView):
 
     def get(self, request):
         semester = request.query_params.get("semester")
-        qs = Subject.objects.all()
+        
+        if request.user.role == "faculty":
+            qs = Subject.objects(id__in=request.user.subject_ids)
+        else:
+            qs = Subject.objects.all()
+            
         if semester:
             try:
                 qs = qs.filter(semester=int(semester))
@@ -258,7 +263,10 @@ class SemesterListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        semesters = Subject.objects.distinct("semester")
+        if request.user.role == "faculty":
+            semesters = Subject.objects(id__in=request.user.subject_ids).distinct("semester")
+        else:
+            semesters = Subject.objects.distinct("semester")
         return Response({"semesters": sorted(semesters)})
 
 
@@ -283,6 +291,12 @@ class ResourceUploadView(APIView):
             subject = Subject.objects.get(id=ObjectId(data["subject_id"]))
         except Exception:
             return Response({"error": "Subject not found."}, status=404)
+
+        # Enforce role-based upload limits
+        if request.user.role == "student" and int(data["semester"]) != request.user.semester:
+            return Response({"error": "You can only upload resources to your own semester."}, status=403)
+        elif request.user.role == "faculty" and subject.id not in request.user.subject_ids:
+            return Response({"error": "You can only upload resources to your assigned subjects."}, status=403)
 
         # Determine status
         status = "approved" if request.user.role in ["faculty", "hod"] else "pending"
@@ -359,7 +373,11 @@ class ResourceListView(APIView):
     def get(self, request):
         qs = Resource.objects(status="approved")
 
-        if semester := request.query_params.get("semester"):
+        if request.user.role == "student":
+            qs = qs.filter(semester=request.user.semester)
+        elif request.user.role == "faculty":
+            qs = qs.filter(subject_id__in=request.user.subject_ids)
+        elif semester := request.query_params.get("semester"):
             qs = qs.filter(semester=int(semester))
         if subject := request.query_params.get("subject"):
             qs = qs.filter(subject_id=ObjectId(subject))
@@ -401,6 +419,10 @@ class ResourceDetailView(APIView):
                 and request.user.role not in ["faculty", "hod"]
             ):
                 return Response({"error": "Resource not found."}, status=404)
+        elif request.user.role == "student" and resource.semester != request.user.semester:
+            return Response({"error": "Resource not found."}, status=404)
+        elif request.user.role == "faculty" and resource.subject_id not in request.user.subject_ids:
+            return Response({"error": "Resource not found."}, status=404)
 
         return Response(serialize_resource(resource))
 
@@ -442,6 +464,11 @@ class ResourceDownloadView(APIView):
         try:
             resource = Resource.objects.get(id=ObjectId(resource_id))
         except Exception:
+            return Response({"error": "Resource not found."}, status=404)
+
+        if request.user.role == "student" and resource.semester != request.user.semester:
+            return Response({"error": "Resource not found."}, status=404)
+        elif request.user.role == "faculty" and resource.subject_id not in request.user.subject_ids:
             return Response({"error": "Resource not found."}, status=404)
 
         if resource.resource_type == "url":

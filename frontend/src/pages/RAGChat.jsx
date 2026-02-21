@@ -5,6 +5,7 @@ import ChatMessage from '../components/ChatMessage'
 import SourceCard from '../components/SourceCard'
 import { useRAGStream } from '../hooks/useRAGStream'
 import { getSemesters, getSubjects } from '../api/endpoints/subjects'
+import { useAuth } from '../context/AuthContext'
 
 const SUGGESTIONS = [
     'Explain BFS and DFS with examples',
@@ -13,15 +14,20 @@ const SUGGESTIONS = [
 ]
 
 export default function RAGChat() {
+    const { user } = useAuth()
     const [input, setInput] = useState('')
     const [semester, setSemester] = useState('')
     const [subjectId, setSubjectId] = useState('')
     const { messages, isLoading, ask, reset } = useRAGStream()
     const bottomRef = useRef(null)
 
-    const { data: semData } = useQuery({ queryKey: ['semesters'], queryFn: getSemesters })
+    const { data: semData } = useQuery({ queryKey: ['semesters'], queryFn: getSemesters, enabled: user?.role !== 'student' })
+
+    // For students, use their fixed semester for subjects
+    const effectiveSemester = user?.role === 'student' ? user.semester : semester
+
     const { data: subData } = useQuery({
-        queryKey: ['subjects', semester], queryFn: () => getSubjects(semester || null), enabled: !!semester
+        queryKey: ['subjects', effectiveSemester], queryFn: () => getSubjects(effectiveSemester || null), enabled: !!effectiveSemester
     })
 
     // Latest sources from most recent assistant message
@@ -53,12 +59,14 @@ export default function RAGChat() {
                         </div>
                         {/* Filters */}
                         <div className="flex gap-2 flex-wrap">
-                            <select value={semester} onChange={e => { setSemester(e.target.value); setSubjectId('') }}
-                                className="px-3 py-1.5 border border-gray-200 rounded-lg text-xs bg-white focus:ring-1 focus:ring-accent focus:outline-none">
-                                <option value="">All Semesters</option>
-                                {(semData?.semesters || []).map(s => <option key={s} value={s}>Semester {s}</option>)}
-                            </select>
-                            <select value={subjectId} onChange={e => setSubjectId(e.target.value)} disabled={!semester}
+                            {user?.role !== 'student' && (
+                                <select value={semester} onChange={e => { setSemester(e.target.value); setSubjectId('') }}
+                                    className="px-3 py-1.5 border border-gray-200 rounded-lg text-xs bg-white focus:ring-1 focus:ring-accent focus:outline-none">
+                                    <option value="">All Semesters</option>
+                                    {(semData?.semesters || []).map(s => <option key={s} value={s}>Semester {s}</option>)}
+                                </select>
+                            )}
+                            <select value={subjectId} onChange={e => setSubjectId(e.target.value)} disabled={!effectiveSemester}
                                 className="px-3 py-1.5 border border-gray-200 rounded-lg text-xs bg-white focus:ring-1 focus:ring-accent focus:outline-none disabled:opacity-40">
                                 <option value="">All Subjects</option>
                                 {(subData?.results || []).map(s => <option key={s.id} value={s.id}>{s.code} — {s.name}</option>)}
