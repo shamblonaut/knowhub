@@ -112,11 +112,7 @@ export default function Login() {
                     </p>
                 </div>
 
-                {/* Dev hint — remove before demo */}
-                <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-xs text-yellow-800">
-                    <strong>Dev accounts:</strong> hod@bca.edu | faculty@bca.edu |
-                    student@bca.edu — all pw: Demo@123
-                </div>
+
             </div>
         </div>
     );
