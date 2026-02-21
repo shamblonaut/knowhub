@@ -1,6 +1,6 @@
-# 📚 KnowHub
+# 📚 Corpus
 
-> Departmental Digital Resource & Knowledge Hub — Solve-a-Thon Track 1 (BCA)
+> Departmental Digital Resource & Corpus — Solve-a-Thon Track 1 (BCA)
 
 A centralized web portal for academic resource sharing between HOD, Faculty, and Students. Built in 24 hours.
 

@@ -48,7 +48,7 @@ export default function Sidebar() {
         <aside className="w-60 min-h-screen bg-primary text-white flex flex-col shrink-0">
             {/* Logo */}
             <div className="px-6 py-5 border-b border-white border-opacity-10">
-                <div className="text-xl font-bold">📚 Knowledge Hub</div>
+                <div className="text-xl font-bold">📚 Corpus</div>
                 <div className="text-xs text-blue-200 mt-0.5">BCA Department</div>
             </div>
 

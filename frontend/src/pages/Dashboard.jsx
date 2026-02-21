@@ -16,7 +16,7 @@ export default function Dashboard() {
                 Welcome back, {user.name} 👋
             </h1>
             <p className="text-gray-500 text-sm mb-8 capitalize">
-                {user.role} · Knowledge Hub
+                {user.role} · Corpus
             </p>
 
             {user.role === "hod" && <HODDashboard />}

@@ -1,4 +1,4 @@
-# Knowledge Hub — API Design Reference
+# Corpus — API Design Reference
 
 > Complete request/response contracts for every endpoint. For AI coding agents and developers.  
 > Base URL: `http://localhost:8000/api/v1`  

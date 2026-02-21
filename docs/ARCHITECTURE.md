@@ -1,4 +1,4 @@
-# Knowledge Hub — Architecture Reference
+# Corpus — Architecture Reference
 
 > Machine-readable reference for AI coding agents. Last updated: 2026-02-20.
 
@@ -6,7 +6,7 @@
 
 ## Project Overview
 
-**Name:** Departmental Digital Resource & Knowledge Hub  
+**Name:** Departmental Digital Resource & Corpus  
 **Purpose:** Centralized web portal for academic resource sharing between HOD, Faculty, and Students.  
 **Stack:** React (Vite) + Django REST Framework + MongoDB (MongoEngine) + Local File Storage  
 **Demo:** Localhost only. Backend on :8000, Frontend on :5173.
@@ -336,7 +336,7 @@ const mutation = useMutation({
 
 ```python
 # MongoDB
-mongoengine.connect(db='knowledge_hub', host='localhost', port=27017)
+mongoengine.connect(db='corpus', host='localhost', port=27017)
 
 # JWT
 SIMPLE_JWT = {

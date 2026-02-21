@@ -197,7 +197,7 @@ export const MOCK_NOTICES = [
     },
     {
         id: "not003",
-        title: "Knowledge Hub is Now Live",
+        title: "Corpus is Now Live",
         body: "The department's centralized resource portal is now operational. Upload your notes and access study materials here.",
         posted_by: "hod001",
         posted_by_name: "Dr. Mehta",

@@ -1,4 +1,4 @@
-# Knowledge Hub — Backend Implementation Plan
+# Corpus — Backend Implementation Plan
 
 > Stage-by-stage build guide for P1 and P2.  
 > Owner: P1 = `accounts/`, `core/` | P2 = `repository/`, `notices/`, `analytics/`, `search/`  
@@ -1572,7 +1572,7 @@ Run this once before the demo to populate realistic test data.
 ```python
 # backend/seed.py
 import mongoengine
-mongoengine.connect(db='knowledge_hub', host='localhost', port=27017)
+mongoengine.connect(db='corpus', host='localhost', port=27017)
 
 from accounts.models import User
 from accounts.utils import hash_password
@@ -1610,7 +1610,7 @@ faculty1.subject_ids = [s1.id, s2.id, s3.id]
 faculty1.save()
 
 print("Creating notices...")
-Notice(title="Welcome to Knowledge Hub",
+Notice(title="Welcome to Corpus",
        body="All study materials are now available centrally. Upload your notes!",
        posted_by=hod.id, posted_by_name="Dr. Mehta", is_pinned=True).save()
 

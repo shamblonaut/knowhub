@@ -1,4 +1,4 @@
-# Knowledge Hub — Frontend Implementation Plan
+# Corpus — Frontend Implementation Plan
 
 > Stage-by-stage build guide for P3 and P4.  
 > Owner: P3 = `pages/`, `context/`, routing, `UploadForm`, `ProtectedRoute` | P4 = `components/`, charts, `Sidebar`  
@@ -305,7 +305,7 @@ export const MOCK_NOTICES = [
   },
   {
     id: "not003",
-    title: "Knowledge Hub is Now Live",
+    title: "Corpus is Now Live",
     body: "The department's centralized resource portal is now operational. Upload your notes and access study materials here.",
     posted_by: "hod001",
     posted_by_name: "Dr. Mehta",
@@ -893,7 +893,7 @@ export default function Login() {
         {/* Logo / Header */}
         <div className="text-center mb-8">
           <div className="text-4xl mb-2">📚</div>
-          <h1 className="text-2xl font-bold text-primary">Knowledge Hub</h1>
+          <h1 className="text-2xl font-bold text-primary">Corpus</h1>
           <p className="text-gray-500 text-sm mt-1">
             BCA Department Resource Portal
           </p>
@@ -1005,7 +1005,7 @@ export default function Register() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="text-4xl mb-2">📚</div>
-          <h1 className="text-2xl font-bold text-primary">Knowledge Hub</h1>
+          <h1 className="text-2xl font-bold text-primary">Corpus</h1>
           <p className="text-gray-500 text-sm mt-1">Student Registration</p>
         </div>
 
@@ -1157,7 +1157,7 @@ export default function Sidebar() {
     <aside className="w-60 min-h-screen bg-primary text-white flex flex-col shrink-0">
       {/* Logo */}
       <div className="px-6 py-5 border-b border-white border-opacity-10">
-        <div className="text-xl font-bold">📚 Knowledge Hub</div>
+        <div className="text-xl font-bold">📚 Corpus</div>
         <div className="text-xs text-blue-200 mt-0.5">BCA Department</div>
       </div>
 
@@ -1267,7 +1267,7 @@ export default function Dashboard() {
         Welcome back, {user.name} 👋
       </h1>
       <p className="text-gray-500 text-sm mb-8 capitalize">
-        {user.role} · Knowledge Hub
+        {user.role} · Corpus
       </p>
 
       {user.role === "hod" && <HODDashboard />}

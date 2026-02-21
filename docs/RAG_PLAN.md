@@ -1,4 +1,4 @@
-# Knowledge Hub — RAG Integration Plan
+# Corpus — RAG Integration Plan
 > Brief implementation guide for both backend and frontend.
 > Stack adds: PyMuPDF · python-pptx · python-docx · tiktoken · Ollama (llama3.2:1b)
 

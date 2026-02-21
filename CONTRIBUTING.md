@@ -1,4 +1,4 @@
-# Contributing to Knowledge Hub
+# Contributing to Corpus
 
 This is a 24-hour hackathon project. This guide exists to keep 4 people from stepping on each other's code.
 
