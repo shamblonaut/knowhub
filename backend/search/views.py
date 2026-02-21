@@ -42,8 +42,11 @@ class SearchView(APIView):
             except Exception:
                 return Response({"error": "Invalid subject ID."}, status=400)
         
-        if fmt := request.query_params.get('format'):
-            qs = qs.filter(file_format=fmt)
+        if fmt := request.query_params.get('file_format'):
+            if fmt == "url":
+                qs = qs.filter(resource_type="url")
+            else:
+                qs = qs.filter(file_format=fmt)
 
         resources = list(qs)
         if not resources:

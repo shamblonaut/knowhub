@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { getResources } from "../api/endpoints/resources";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getResources, deleteResource } from "../api/endpoints/resources";
 import { search } from "../api/endpoints/search";
 import Layout from "../components/Layout";
 import FileCard from "../components/FileCard";
@@ -12,6 +12,7 @@ import RecommendPanel from "../components/RecommendPanel";
 import { Link } from "react-router-dom";
 
 export default function Repository() {
+    const queryClient = useQueryClient();
     const [filters, setFilters] = useState({});
     const [searchQuery, setSearchQuery] = useState("");
     const [selected, setSelected] = useState(null);
@@ -35,6 +36,17 @@ export default function Repository() {
         ? searchData?.results || []
         : browseData?.results || [];
     const total = isSearching ? searchData?.count || 0 : browseData?.count || 0;
+
+    const handleDelete = async (id) => {
+        try {
+            await deleteResource(id);
+            queryClient.invalidateQueries({ queryKey: ["resources"] });
+            queryClient.invalidateQueries({ queryKey: ["search"] });
+            if (selected?.id === id) setSelected(null);
+        } catch (error) {
+            alert(error.response?.data?.error || "Failed to delete resource");
+        }
+    };
 
     return (
         <Layout>
@@ -83,7 +95,7 @@ export default function Repository() {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {resources.map((r) => (
-                        <FileCard key={r.id} resource={r} onSelect={() => setSelected(r)} />
+                        <FileCard key={r.id} resource={r} onSelect={() => setSelected(r)} onDelete={handleDelete} />
                     ))}
                 </div>
             )}

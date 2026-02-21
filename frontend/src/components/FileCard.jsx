@@ -1,8 +1,15 @@
 import Badge from "./Badge";
 import { downloadResource } from "../api/endpoints/resources";
+import { useAuth } from "../context/AuthContext";
 
-export default function FileCard({ resource, onSelect }) {
+export default function FileCard({ resource, onSelect, onDelete }) {
+    const { user } = useAuth();
     const isUrl = resource.resource_type === "url";
+
+    const isUploader = user?.id === resource.uploaded_by;
+    const isHod = user?.role === "hod";
+    const isFacultyOwner = user?.role === "faculty" && (user?.subject_ids || []).includes(resource.subject_id);
+    const canDelete = isUploader || isHod || isFacultyOwner;
 
     return (
         <div
@@ -59,6 +66,19 @@ export default function FileCard({ resource, onSelect }) {
                         className="text-xs bg-primary text-white px-3 py-1.5 rounded-lg hover:bg-opacity-90 transition"
                     >
                         Download
+                    </button>
+                )}
+                {canDelete && onDelete && (
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            if (window.confirm("Are you sure you want to delete this resource?")) {
+                                onDelete(resource.id);
+                            }
+                        }}
+                        className="text-xs bg-red-50 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-100 transition ml-2 font-medium"
+                    >
+                        Delete
                     </button>
                 )}
             </div>

@@ -20,8 +20,13 @@ export default function FilterBar({ filters, onFilter }) {
     const semesters = semData?.semesters || [];
     const subjects = subData?.results || [];
 
-    const handle = (key, val) =>
-        onFilter({ ...filters, [key]: val || undefined });
+    const handle = (key, val) => {
+        const newFilters = { ...filters, [key]: val || undefined };
+        if (key === "semester") {
+            newFilters.subject = undefined;
+        }
+        onFilter(newFilters);
+    };
 
     return (
         <div className="flex flex-wrap gap-3 mb-6">
@@ -54,12 +59,12 @@ export default function FilterBar({ filters, onFilter }) {
             </select>
 
             <select
-                value={filters.format || ""}
-                onChange={(e) => handle("format", e.target.value)}
+                value={filters.file_format || ""}
+                onChange={(e) => handle("file_format", e.target.value)}
                 className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-accent focus:outline-none"
             >
                 <option value="">All Formats</option>
-                {["pdf", "ppt", "doc", "image"].map((f) => (
+                {["pdf", "ppt", "doc", "image", "url"].map((f) => (
                     <option key={f} value={f}>
                         {f.toUpperCase()}
                     </option>

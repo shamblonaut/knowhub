@@ -10,8 +10,8 @@ export const getResources = async (filters = {}) => {
             results = results.filter((r) => r.semester === Number(filters.semester));
         if (filters.subject)
             results = results.filter((r) => r.subject_id === filters.subject);
-        if (filters.format)
-            results = results.filter((r) => r.file_format === filters.format);
+        if (filters.file_format)
+            results = results.filter((r) => r.file_format === filters.file_format);
         return { count: results.length, page: 1, page_size: 20, results };
     }
     return api.get("/resources/", { params: filters }).then((r) => r.data);

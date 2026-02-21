@@ -83,4 +83,8 @@ class UploadsByFormatView(APIView):
         for fmt in ['pdf', 'ppt', 'doc', 'image']:
             count = Resource.objects(status='approved', file_format=fmt).count()
             data.append({"format": fmt, "count": count})
+            
+        url_count = Resource.objects(status='approved', resource_type='url').count()
+        data.append({"format": "url", "count": url_count})
+        
         return Response({"data": data})

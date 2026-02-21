@@ -377,14 +377,18 @@ class ResourceListView(APIView):
             qs = qs.filter(semester=request.user.semester)
         elif request.user.role == "faculty":
             qs = qs.filter(subject_id__in=request.user.subject_ids)
-        elif semester := request.query_params.get("semester"):
+            
+        if semester := request.query_params.get("semester"):
             qs = qs.filter(semester=int(semester))
         if subject := request.query_params.get("subject"):
             qs = qs.filter(subject_id=ObjectId(subject))
         if faculty := request.query_params.get("faculty"):
             qs = qs.filter(uploaded_by=ObjectId(faculty))
-        if fmt := request.query_params.get("format"):
-            qs = qs.filter(file_format=fmt)
+        if fmt := request.query_params.get("file_format"):
+            if fmt == "url":
+                qs = qs.filter(resource_type="url")
+            else:
+                qs = qs.filter(file_format=fmt)
 
         # Pagination
         page = int(request.query_params.get("page", 1))
@@ -432,14 +436,22 @@ class ResourceDetailView(APIView):
         except Exception:
             return Response({"error": "Resource not found."}, status=404)
 
-        if (
-            request.user.role != "hod"
-            and str(resource.uploaded_by) != str(request.user.id)
-        ):
+        is_uploader = str(resource.uploaded_by) == str(request.user.id)
+        is_hod = request.user.role == "hod"
+        is_faculty_owner = request.user.role == "faculty" and resource.subject_id in getattr(request.user, "subject_ids", [])
+
+        if not (is_uploader or is_hod or is_faculty_owner):
             return Response({"error": "Permission denied."}, status=403)
 
         delete_file_if_exists(resource.file_path)
         resource.delete()
+        
+        try:
+            from rag.models import ResourceChunk
+            ResourceChunk.objects(resource_id=str(resource.id)).delete()
+        except Exception:
+            pass
+
         return Response({"message": "Resource deleted."})
 
 

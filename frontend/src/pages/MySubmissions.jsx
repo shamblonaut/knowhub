@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { getMySubmissions } from "../api/endpoints/resources";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getMySubmissions, deleteResource } from "../api/endpoints/resources";
 import Layout from "../components/Layout";
 import Spinner from "../components/Spinner";
 import EmptyState from "../components/EmptyState";
@@ -22,12 +22,23 @@ const StatusBadge = ({ status }) => {
 };
 
 export default function MySubmissions() {
+    const queryClient = useQueryClient();
     const { data, isLoading, error } = useQuery({
         queryKey: ["my-submissions"],
         queryFn: getMySubmissions,
     });
 
     const submissions = data?.results || [];
+
+    const handleDelete = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this resource?")) return;
+        try {
+            await deleteResource(id);
+            queryClient.invalidateQueries({ queryKey: ["my-submissions"] });
+        } catch (error) {
+            alert(error.response?.data?.error || "Failed to delete resource");
+        }
+    };
 
     return (
         <Layout>
@@ -91,11 +102,17 @@ export default function MySubmissions() {
                                                     href={sub.url || sub.file_url}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
+                                                    className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors mr-3"
                                                 >
                                                     View
                                                 </a>
                                             )}
+                                            <button
+                                                onClick={() => handleDelete(sub.id)}
+                                                className="text-sm text-red-600 hover:text-red-800 font-medium transition-colors"
+                                            >
+                                                Delete
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}
