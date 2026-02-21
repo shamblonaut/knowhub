@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rag.retriever import retrieve
-from rag.llm import build_prompt, stream
+from rag.llm import build_messages, stream
 
 class RAGAskView(APIView):
     permission_classes = [IsAuthenticated]
@@ -21,6 +21,8 @@ class RAGAskView(APIView):
         subject_id = request.data.get('subject_id') or None
         allowed_subject_ids = request.user.subject_ids if request.user.role == 'faculty' else None
 
+        history = request.data.get('history') or []
+
         if not question:
             return Response({'error': 'question required'}, status=400)
 
@@ -32,9 +34,9 @@ class RAGAskView(APIView):
                 yield f"data: {json.dumps({'type':'done'})}\n\n"
                 return
 
-            prompt = build_prompt(question, chunks)
+            messages = build_messages(question, chunks, history)
 
-            for token in stream(prompt):
+            for token in stream(messages):
                 yield f"data: {json.dumps({'type':'token','content':token})}\n\n"
 
             # Deduplicate sources by resource id

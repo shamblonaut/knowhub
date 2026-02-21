@@ -17,6 +17,12 @@ export function useRAGStream() {
     const ask = useCallback(async (params) => {
         if (isLoading || !params.question?.trim()) return
 
+        // Extract previous messages to pass as history, omitting 'sources', 'streaming', and 'error' flags
+        const history = messages.map(m => ({
+            role: m.role,
+            content: m.content
+        }))
+
         setMessages(prev => [...prev,
         { role: 'user', content: params.question, sources: [] },
         { role: 'assistant', content: '', sources: [], streaming: true },
@@ -24,7 +30,8 @@ export function useRAGStream() {
         setIsLoading(true)
         buffer.current = ''
 
-        await askRAG(params, {
+        // Pass history in the request
+        await askRAG({ ...params, history }, {
             onToken: (t) => { buffer.current += t; setIsLoading(false); patchLast({ content: buffer.current }) },
             onSources: (s) => patchLast({ sources: s }),
             onDone: () => { setIsLoading(false); patchLast({ streaming: false }) },
