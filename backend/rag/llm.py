@@ -12,14 +12,21 @@ def build_prompt(question, chunks):
     ctx = '\n\n'.join(ctx_parts)
     return f"{SYSTEM}\n\nCOURSE MATERIAL:\n{ctx}\n\nQUESTION: {question}\n\nANSWER:"
 
+import os
+from groq import Groq
+
 def stream(prompt):
     """Generator yielding text tokens."""
     try:
-        import ollama
-        for chunk in ollama.chat(model='llama3.2:1b',
-                                  messages=[{'role':'user','content':prompt}],
-                                  stream=True):
-            t = chunk.get('message',{}).get('content','')
-            if t: yield t
+        client = Groq()
+        response = client.chat.completions.create(
+            model='llama-3.1-8b-instant',
+            messages=[{'role': 'user', 'content': prompt}],
+            stream=True
+        )
+        for chunk in response:
+            token = chunk.choices[0].delta.content
+            if token:
+                yield token
     except Exception as e:
-        yield f'[Error: {e}. Is Ollama running? Run: ollama serve]'
+        yield f'[Error: {e}. Please ensure GROQ_API_KEY is properly set in the environment]'
