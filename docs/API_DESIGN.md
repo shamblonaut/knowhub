@@ -846,172 +846,36 @@ Hybrid keyword + semantic search over approved resources.
 |--------|-----------|
 | 400 | `q` param missing or empty |
 
----
+### POST `/rag/ask/`
 
-### GET `/search/recommend/<resource_id>/`
+Questions are answered using course materials via RAG + local LLM.
 
-Returns 5 resources most similar to the given resource based on embedding cosine similarity.
-
-**Response `200`**
+**Request**
 
 ```json
 {
-  "resource_id": "65f1a2b3c4d5e6f7a8b9c0d7",
-  "recommendations": [
-    {
-      "id": "65f1a2b3c4d5e6f7a8b9c0db",
-      "title": "Graph Algorithms - BFS & DFS",
-      "subject_code": "BCA401",
-      "file_format": "pdf",
-      "file_url": "http://localhost:8000/media/uploads/4/BCA401/graph_algos.pdf",
-      "similarity_score": 0.88
-    }
-  ]
+  "question": "What is the complexity of BFS?",
+  "semester": 4,
+  "subject_id": "65f1a2b3c4d5e6f7a8b9c0d4"
 }
+```
+
+**Response (Server-Sent Events)**
+
+Tokens are streamed as they are generated.
+
+```
+data: {"type": "token", "content": "BFS "}
+data: {"type": "token", "content": "complexity "}
+data: {"type": "token", "content": "is O(V+E) [1]."}
+data: {"type": "sources", "sources": [{"resource_id": "...", "title": "Unit 3", "code": "BCA401", "score": 0.95}]}
+data: {"type": "done"}
 ```
 
 **Errors**
 | Status | Condition |
 |--------|-----------|
-| 404 | Resource not found |
-| 400 | Resource has no embedding yet |
+| 400 | `"question required"` |
+| 401 | Not authenticated |
 
 ---
-
-## Implementation Notes for Agents
-
-### Custom JWT Authentication Backend
-
-Since users are MongoEngine documents (not Django ORM), write a custom authentication class:
-
-```python
-# accounts/authentication.py
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from bson import ObjectId
-from .models import User
-
-class MongoJWTAuthentication(JWTAuthentication):
-    def get_user(self, validated_token):
-        user_id = validated_token.get("user_id")
-        try:
-            return User.objects.get(id=ObjectId(user_id))
-        except User.DoesNotExist:
-            return None
-
-def get_tokens_for_user(user):
-    from rest_framework_simplejwt.tokens import RefreshToken
-    token = RefreshToken()
-    token["user_id"] = str(user.id)
-    token["role"] = user.role
-    return {
-        "refresh": str(token),
-        "access": str(token.access_token),
-    }
-```
-
-Register in settings.py:
-
-```python
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'accounts.authentication.MongoJWTAuthentication',
-    ),
-}
-```
-
----
-
-### Permission Classes
-
-```python
-# accounts/permissions.py
-from rest_framework.permissions import BasePermission
-
-class IsHOD(BasePermission):
-    def has_permission(self, request, view):
-        return hasattr(request, 'user') and request.user.role == 'hod'
-
-class IsFacultyOrHOD(BasePermission):
-    def has_permission(self, request, view):
-        return hasattr(request, 'user') and request.user.role in ['faculty', 'hod']
-
-class IsOwnerOrHOD(BasePermission):
-    def has_object_permission(self, request, view, obj):
-        return request.user.role == 'hod' or str(obj.uploaded_by) == str(request.user.id)
-```
-
----
-
-### Faculty Subject Scope Check
-
-Always validate this before approve/reject actions:
-
-```python
-def faculty_owns_subject(faculty_user, subject_id):
-    from bson import ObjectId
-    return ObjectId(subject_id) in faculty_user.subject_ids
-```
-
----
-
-### File Validation
-
-```python
-ALLOWED_EXTENSIONS = {
-    'pdf':  'pdf',
-    'ppt':  'ppt', 'pptx': 'ppt',
-    'doc':  'doc', 'docx': 'doc',
-    'jpg':  'image', 'jpeg': 'image', 'png': 'image',
-}
-
-def validate_file(file):
-    ext = file.name.rsplit('.', 1)[-1].lower()
-    if ext not in ALLOWED_EXTENSIONS:
-        raise ValidationError(f"File type '.{ext}' is not allowed.")
-    if file.size > settings.MAX_UPLOAD_SIZE:
-        raise ValidationError("File size exceeds 50MB limit.")
-    return ALLOWED_EXTENSIONS[ext]  # returns format string: 'pdf', 'ppt', 'doc', 'image'
-```
-
----
-
-### File Storage Path Convention
-
-```python
-import os
-
-def get_upload_path(semester, subject_code, filename):
-    return os.path.join('uploads', str(semester), subject_code, filename)
-
-# Full disk path:
-# settings.MEDIA_ROOT / uploads / <semester> / <subject_code> / <filename>
-# Served at:
-# http://localhost:8000/media/uploads/<semester>/<subject_code>/<filename>
-```
-
----
-
-### Pagination
-
-Use a consistent page size of 20 across all list endpoints:
-
-```python
-from rest_framework.pagination import PageNumberPagination
-
-class StandardPagination(PageNumberPagination):
-    page_size = 20
-    page_size_query_param = 'page_size'
-    max_page_size = 100
-```
-
----
-
-### Allowed File Extensions Reference
-
-| Extension               | Stored `file_format` |
-| ----------------------- | -------------------- |
-| `.pdf`                  | `"pdf"`              |
-| `.ppt`, `.pptx`         | `"ppt"`              |
-| `.doc`, `.docx`         | `"doc"`              |
-| `.jpg`, `.jpeg`, `.png` | `"image"`            |
-| anything else           | REJECT with 400      |

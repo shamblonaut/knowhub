@@ -1,225 +1,122 @@
-# 📚 Corpus
+# 📚 Corpus — Academic Resource Hub
 
-> Departmental Digital Resource & Corpus — Solve-a-Thon Track 1 (BCA)
-
-A centralized web portal for academic resource sharing between HOD, Faculty, and Students. Built in 24 hours.
-
----
-
-## Tech Stack
-
-| Layer        | Technology                               |
-| ------------ | ---------------------------------------- |
-| Frontend     | React 18 + Vite + Tailwind CSS           |
-| Backend      | Django 5 + Django REST Framework         |
-| Database     | MongoDB via MongoEngine                  |
-| Auth         | JWT (djangorestframework-simplejwt)      |
-| AI Search    | sentence-transformers (all-MiniLM-L6-v2) |
-| File Storage | Local disk (Django MEDIA_ROOT)           |
+<p align="center">
+  <a href="#-key-features">Features</a> •
+  <a href="#-tech-stack">Tech Stack</a> •
+  <a href="#-getting-started">Getting Started</a> •
+  <a href="#-architecture">Architecture</a>
+</p>
 
 ---
 
-## Features
-
-
-- **Role-based access** — HOD, Faculty, and Student roles with distinct permissions
-- **Smart Repository** — Upload PDFs, PPTs, DOCs, and images organized by Semester, Subject, and Unit
-- **Gatekeeper Approval** — Student uploads require Faculty approval before going live
-- **Digital Notice Board** — Post department circulars with "NEW" badge for 24 hours
-- **Advanced Filtering** — Filter resources by Semester, Subject, Format, and Professor
-- **AI-Powered Search** — Hybrid keyword + semantic search using local embeddings
-- **HOD Analytics Dashboard** — Upload stats, top resources, faculty activity charts
+**Corpus** is a centralized web portal designed for seamless academic resource sharing between HODs, Faculty, and Students. It combines traditional resource management with modern AI-powered features like hybrid search and a RAG-based study assistant.
 
 ---
 
-## Project Structure
+## 🚀 Key Features
 
-```
-knowledge_hub/
-├── backend/                  # Django project
-│   ├── core/                 # Settings, URLs
-│   ├── accounts/             # Auth, user management
-│   ├── repository/           # Resources, subjects, uploads
-│   ├── notices/              # Notice board
-│   ├── analytics/            # HOD dashboard data
-│   ├── search/               # AI search & recommendations
-│   ├── media/                # Uploaded files (gitignored)
-│   └── manage.py
-├── frontend/                 # React + Vite app
-│   └── src/
-│       ├── api/              # Axios instance
-│       ├── components/       # Reusable UI components
-│       ├── context/          # AuthContext
-│       ├── hooks/            # Custom hooks
-│       └── pages/            # Route-level pages
-├── ARCHITECTURE.md           # Full system architecture reference
-├── API_DESIGN.md             # Complete API contracts
-└── README.md
-```
+- **🛡️ Secure Access Control** — Role-based permissions for HOD, Faculty, and Students (JWT-backed).
+- **📂 Smart Repository** — Organize resources by Semester, Subject, and Unit with support for PDF, PPT, Word, and Images.
+- **✅ Streamlined Approval** — Faculty-led verification workflow to ensure quality content.
+- **📢 Digital Notice Board** — Real-time updates with "NEW" badges and pinned announcements.
+- **🔍 Hybrid AI Search** — Combines keyword matching with semantic vector search for fast, relevant results.
+- **🤖 AI Study Assistant** — Integrated RAG-based chat to answer questions using curated course materials.
+- **📊 HOD Dashboard** — Comprehensive analytics on uploads, downloads, and department activity.
 
 ---
 
-## Prerequisites
+## 🛠️ Tech Stack
 
-- Python 3.10+
-- Node.js 20+
-- MongoDB 7.0 running on `localhost:27017`
+| Component    | Technology                                                   |
+| :----------- | :----------------------------------------------------------- |
+| **Frontend** | React, Vite, Tailwind CSS, TanStack Query                    |
+| **Backend**  | Django, Django REST Framework, SimpleJWT                     |
+| **Database** | MongoDB (via MongoEngine)                                    |
+| **AI/ML**    | Sentence Transformers (`all-MiniLM-L6-v2`), Groq (Llama 3.1) |
+| **Storage**  | Local Media Management                                       |
 
 ---
 
-## Getting Started
+## 🏁 Getting Started
 
-### 1. Clone the repo
+### 📋 Prerequisites
+
+- **Python** 3.10+
+- **Node.js** 20+
+- **MongoDB** 7.0+ (Running on `localhost:27017`)
+
+### 🛠️ Installation & Setup
+
+#### 1. Clone & Database
 
 ```bash
-git clone <repo-url>
-cd knowledge_hub
-```
-
-### 2. Start MongoDB
-
-```bash
+git clone https://github.com/safa-nasrin/Corpus
+cd Corpus
+# Ensure mongod is running
 sudo systemctl start mongod
-sudo systemctl status mongod   # should show: active (running)
 ```
 
-### 3. Backend setup
+#### 2. Backend Setup
 
 ```bash
 cd backend
 python3 -m venv venv
 source venv/bin/activate
+pip install -r requirements.txt
 
-pip install django djangorestframework djangorestframework-simplejwt \
-            mongoengine django-cors-headers Pillow python-dotenv passlib
-
-# Download AI model (80MB, only needed once)
+# Pre-load AI Model
 python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
 
-python manage.py check        # should show 0 issues
 python manage.py runserver 8000
 ```
 
-### 4. Frontend setup
+#### 3. Frontend Setup
 
 ```bash
 cd frontend
 npm install
-npm run dev                   # starts on http://localhost:5173
+npm run dev
 ```
 
-### 5. Open the app
+---
 
-Navigate to **http://localhost:5173**
+## 👥 User Roles
+
+| Role        | Responsibility                                                          |
+| :---------- | :---------------------------------------------------------------------- |
+| **HOD**     | Department management, analytics oversight, faculty & subject creation. |
+| **Faculty** | Resource verification, subject ownership, posting announcements.        |
+| **Student** | Resource discovery, peer-to-peer uploads, AI-assisted learning.         |
 
 ---
 
-## Demo Accounts
+## 📖 Further Documentation
 
-Seed these before demoing (use the management command or create manually):
-
-| Role    | Email           | Password |
-| ------- | --------------- | -------- |
-| HOD     | hod@bca.edu     | Demo@123 |
-| Faculty | faculty@bca.edu | Demo@123 |
-| Student | student@bca.edu | Demo@123 |
+- **[Full Architecture Guide](docs/ARCHITECTURE.md)** — Dive deep into schemas and system flows.
+- **[API Specification](docs/API_DESIGN.md)** — Complete endpoint documentation and request contracts.
 
 ---
-
-## User Roles
-
-### HOD (Admin)
-
-- Creates Faculty accounts and manages Subjects
-- Approves/rejects any student upload
-- Views analytics dashboard
-- Pins and deletes notices
-
-### Faculty
-
-- Uploads resources (auto-approved and immediately live)
-- Reviews and approves student uploads for their assigned subjects
-- Posts notices
-
-### Student
-
-- Self-registers with USN
-- Uploads notes (enters pending approval queue)
-- Browses and downloads approved resources
-- Views notices
-
----
-
-## API
-
-Backend runs at `http://localhost:8000/api/v1/`
-
-All endpoints require `Authorization: Bearer <token>` except `/auth/register/` and `/auth/login/`.
-
-See [`API_DESIGN.md`](./API_DESIGN.md) for complete request/response contracts.
-
-Key endpoint groups:
-
-- `/auth/` — Register, login, token refresh, user profile
-- `/subjects/` — Subject and semester management
-- `/resources/` — Upload, browse, download, approve, reject
-- `/notices/` — Department notice board
-- `/analytics/` — HOD dashboard stats
-- `/search/` — AI-powered search and recommendations
-
----
-
-## File Upload Rules
-
-| Format       | Extensions              |
-| ------------ | ----------------------- |
-| PDF          | `.pdf`                  |
-| Presentation | `.ppt`, `.pptx`         |
-| Document     | `.doc`, `.docx`         |
-| Image        | `.jpg`, `.jpeg`, `.png` |
-
-Maximum file size: **50MB**  
-All other formats are rejected with a 400 error.
-
----
-
-## Architecture
-
-See [`ARCHITECTURE.md`](./ARCHITECTURE.md) for:
-
-- Full system architecture and request flow
-- MongoDB collection schemas
-- Frontend component tree
-- Permission matrix
-- AI search implementation details
-
----
-
-## Development Notes
-
-- No Django ORM — all models use MongoEngine Documents
-- No `django.contrib.admin` or `django.contrib.auth` — custom JWT auth with MongoEngine
-- Faculty approval is scoped to their assigned subjects only
-- `is_new` on notices is computed at serialization (not stored in DB)
-- File deletion from disk happens on resource rejection
-- AI embeddings are generated in a background thread on approval
-
----
-
-## Team
-
-Built at Solve-a-Thon 2026 — Track 1 (BCA)
-
 
 ## 📸 Screenshots
 
-### AI - Features
-<img width="1440" height="786" alt="AI - Features" src="https://github.com/user-attachments/assets/13759020-8d4d-4292-8e5f-5fb8d08958fa" />
+### AI Features
 
+![AI Features](https://github.com/user-attachments/assets/13759020-8d4d-4292-8e5f-5fb8d08958fa)
 
 ### Analytics
-<img width="1423" height="772" alt="Analytics" src="https://github.com/user-attachments/assets/b9f8547d-20cf-4591-ac42-f9dae77ea7a8" />
 
+![Analytics](https://github.com/user-attachments/assets/b9f8547d-20cf-4591-ac42-f9dae77ea7a8)
 
 ### Repository
-<img width="1424" height="781" alt="Repository" src="https://github.com/user-attachments/assets/7f89e047-fa3b-4fff-85ec-d8476bd5d1e1" />
+
+![Repository](https://github.com/user-attachments/assets/7f89e047-fa3b-4fff-85ec-d8476bd5d1e1)
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our contributing guidelines for more details on how to get involved.
+
+## 📄 License
+
+Distributed under the MIT License. See `LICENSE` for more information.

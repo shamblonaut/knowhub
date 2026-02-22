@@ -1,6 +1,6 @@
 # Corpus — Architecture Reference
 
-> Machine-readable reference for AI coding agents. Last updated: 2026-02-20.
+> Machine-readable reference for AI coding agents. Last updated: 2026-02-22.
 
 ---
 
@@ -16,17 +16,17 @@
 ## Repository Structure
 
 ```
-knowledge_hub/
+Corpus/
 ├── backend/                        # Django project
-│   ├── core/                       # Project config (settings, urls, wsgi)
 │   ├── accounts/                   # Auth, user management
-│   ├── repository/                 # File uploads, approval, download
-│   ├── notices/                    # Notice board
 │   ├── analytics/                  # HOD dashboard stats
-│   ├── search/                     # AI-powered search
+│   ├── core/                       # Project config (settings, urls, wsgi)
 │   ├── media/uploads/              # MEDIA_ROOT — uploaded files on disk
-│   ├── manage.py
-│   └── venv/
+│   ├── manage.py                   # Django management script
+│   ├── notices/                    # Notice board
+│   ├── rag/                        # RAG-based AI study assistant
+│   ├── repository/                 # File uploads, approval, download
+│   ├── search/                     # AI-powered search
 └── frontend/                       # React + Vite app
     └── src/
         ├── api/                    # Axios instance + endpoint functions
@@ -195,12 +195,11 @@ class Notice(me.Document):
 | GET    | `/analytics/top-resources/`       | HOD  | Top 10 by download_count                   |
 | GET    | `/analytics/faculty-activity/`    | HOD  | Uploads + approvals per faculty            |
 
-### Search — `search/urls.py`
-
-| Method | Path                                     | Role | Description                                        |
-| ------ | ---------------------------------------- | ---- | -------------------------------------------------- |
-| GET    | `/search/?q=&semester=&subject=&format=` | ALL  | Hybrid keyword + semantic search                   |
-| GET    | `/search/recommend/<resource_id>/`       | ALL  | 5 similar resources by embedding cosine similarity |
+| Method | Path                                     | Role | Description                                            |
+| ------ | ---------------------------------------- | ---- | ------------------------------------------------------ |
+| GET    | `/search/?q=&semester=&subject=&format=` | ALL  | Hybrid keyword + semantic search with relevance scores |
+| GET    | `/search/recommend/<resource_id>/`       | ALL  | 5 similar resources by embedding cosine similarity     |
+| POST   | `/rag/ask/`                              | ALL  | RAG-based AI assistant (SSE streaming)                 |
 
 ---
 
@@ -299,79 +298,6 @@ def generate_embedding(resource):
 | `/notices`    | Notices.jsx    | All              |
 | `/analytics`  | Analytics.jsx  | HOD only         |
 | `/admin`      | AdminPanel.jsx | HOD only         |
-
-### Components to Build
-
-| Component       | Props                           | Description                                                      |
-| --------------- | ------------------------------- | ---------------------------------------------------------------- |
-| `<Sidebar>`     | `role`                          | Role-aware nav links                                             |
-| `<FilterBar>`   | `onFilter(filters)`             | Dropdowns: Semester, Subject, Format, Professor                  |
-| `<FileCard>`    | `resource, onDownload`          | Title, type badge, subject, uploader, download btn               |
-| `<PendingCard>` | `resource, onApprove, onReject` | Used in Review page                                              |
-| `<NoticeCard>`  | `notice`                        | Title, body, "NEW" badge if < 24h old                            |
-| `<UploadForm>`  | `onUpload`                      | File/URL toggle, subject/semester/unit picker, format validation |
-| `<StatCard>`    | `label, value, icon`            | KPI tile for analytics dashboard                                 |
-| `<SearchBar>`   | `onSearch`                      | Debounced input (300ms), feeds search endpoint                   |
-
-### API Call Pattern (TanStack Query)
-
-```jsx
-// GET (read)
-const { data, isLoading } = useQuery({
-  queryKey: ["resources", filters],
-  queryFn: () =>
-    api.get("/resources/", { params: filters }).then((r) => r.data),
-});
-
-// POST/PATCH/DELETE (mutations)
-const mutation = useMutation({
-  mutationFn: (data) => api.post("/resources/upload/", data),
-  onSuccess: () => queryClient.invalidateQueries(["resources"]),
-});
-```
-
----
-
-## Django Settings Reference
-
-```python
-# MongoDB
-mongoengine.connect(db='corpus', host='localhost', port=27017)
-
-# JWT
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
-    'AUTH_HEADER_TYPES': ('Bearer',),
-}
-
-# CORS
-CORS_ALLOWED_ORIGINS = ['http://localhost:5173']
-
-# Files
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-MAX_UPLOAD_SIZE = 52428800  # 50MB
-
-# No Django ORM — no DATABASES config, no migrations needed
-```
-
----
-
-## Key Implementation Notes for AI Agents
-
-1. **No Django ORM.** Do not use `Model.objects.create()`, `migrations`, or `django.contrib.auth.models.User`. All models are MongoEngine Documents.
-2. **Custom JWT payload.** Since users are MongoEngine documents (not Django ORM users), JWT tokens are issued manually. The payload contains `user_id` (str of ObjectId) and `role`. A custom authentication backend reads this.
-3. **No `django.contrib.admin`.** It is not in `INSTALLED_APPS` and not in `urls.py`.
-4. **No `django.contrib.auth`.** Password hashing is done with `passlib` (`bcrypt`). Do not use `make_password` or `check_password` from Django.
-5. **Faculty approval scope.** When a faculty member approves/rejects, verify `subject_id` of the resource is in the faculty's `subject_ids` list. HOD bypasses this check.
-6. **File deletion on reject.** When a resource is rejected, delete the physical file from disk (`os.remove(full_path)`) in addition to updating the document status.
-7. **Embedding generation is async.** Run it in a background thread on approval to avoid blocking the HTTP response.
-8. **`is_new` is computed, not stored.** Never write `is_new` to the database. Always compute it as `(now - created_at) < 24h` at serialization time.
-9. **CORS is pre-configured** for `http://localhost:5173` only. Do not change this for the hackathon.
-10. **Media files are served by Django** in development via `static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)` in `core/urls.py`.
-
----
 
 ## Demo Accounts (seed these before demo)
 
