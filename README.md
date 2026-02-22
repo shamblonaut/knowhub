@@ -209,3 +209,14 @@ See [`ARCHITECTURE.md`](./ARCHITECTURE.md) for:
 
 Built at Solve-a-Thon 2026 — Track 1 (BCA)
 
+
+## 📸 Screenshots
+
+### AI - Features
+![AI - Features](AI%20-%20Features.png)
+
+### Analytics
+![Analytics](Analytics.png)
+
+### Repository
+![Repository](Repository.png)
