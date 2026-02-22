@@ -1,33 +1,36 @@
 import os
 import sys
-import django
 import random
-from datetime import datetime, timedelta
-from passlib.hash import bcrypt
+from datetime import datetime, timedelta, UTC
 
 # Setup Django environment
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
+
+# Use django.setup() to load settings and connect to DB via settings.py
+import django
 django.setup()
 
 from accounts.models import User
+from accounts.utils import hash_password
 from repository.models import Subject, Resource
 from notices.models import Notice
 
 def clear_db():
-    print("Clearing existing demo data...")
-    User.objects().delete()
-    Subject.objects().delete()
-    Resource.objects().delete()
-    Notice.objects().delete()
+    print("Clearing existing data...")
+    User.objects.delete()
+    Subject.objects.delete()
+    Resource.objects.delete()
+    Notice.objects.delete()
     print("Database cleared.\n")
 
 def seed():
-    print("Starting database seeding process...")
+    print("Starting database seeding process (Matching seed.py)...")
     
     # 1. Accounts
     print("Seeding Users...")
-    password_hash = bcrypt.hash("Demo@123")
+    # Use our robust hash_password utility instead of passlib.hash.bcrypt
+    password_hash = hash_password("Demo@123")
     
     users_data = [
         {"name": "Dr. Mehta (HOD)", "email": "hod@bca.edu", "password_hash": password_hash, "role": "hod", "is_active": True},
@@ -93,7 +96,7 @@ def seed():
     statuses = ["approved", "pending", "rejected"]
 
     # Generate embeddings arbitrarily (mock data)
-    mock_embedding = [random.uniform(-1, 1) for _ in range(384)] if hasattr(Resource, 'embedding') else []
+    mock_embedding = [random.uniform(-1, 1) for _ in range(384)]
 
     resource_count = 0
     for subject in saved_subjects:
@@ -116,7 +119,7 @@ def seed():
                 status=status,
                 download_count=random.randint(0, 150) if status == 'approved' else 0,
                 embedding=mock_embedding,
-                upload_date=datetime.utcnow() - timedelta(days=random.randint(0, 30))
+                upload_date=datetime.now(UTC) - timedelta(days=random.randint(0, 30))
             )
 
             if r_type == "file":
@@ -129,7 +132,7 @@ def seed():
             if status != "pending":
                 reviewer = random.choice(faculty_list) if uploader.role == 'student' else hod
                 resource.reviewed_by = reviewer.id
-                resource.reviewed_at = datetime.utcnow() - timedelta(days=random.randint(0, 5))
+                resource.reviewed_at = datetime.now(UTC) - timedelta(days=random.randint(0, 5))
 
             resource.save()
             resource_count += 1
@@ -151,8 +154,8 @@ def seed():
             **data,
             posted_by=hod.id,
             posted_by_name=hod.name,
-            expires_at=datetime.utcnow() + timedelta(days=random.randint(7, 30)),
-            created_at=datetime.utcnow() - timedelta(days=random.randint(0, 5))
+            expires_at=datetime.now(UTC) + timedelta(days=random.randint(7, 30)),
+            created_at=datetime.now(UTC) - timedelta(days=random.randint(0, 5))
         ).save()
     
     print(f"Created {len(notices_data)} notices.\n")
@@ -162,5 +165,11 @@ def seed():
     print("Student: student1@bca.edu | Password: Demo@123")
 
 if __name__ == "__main__":
-    clear_db()
-    seed()
+    try:
+        clear_db()
+        seed()
+    except Exception as e:
+        print(f"Error seeding database: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
