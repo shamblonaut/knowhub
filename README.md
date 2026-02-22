@@ -1,6 +1,10 @@
 # 📚 Corpus — Academic Resource Hub
 
 <p align="center">
+  <img src="assets/banner.jpg" alt="Corpus Banner" />
+</p>
+
+<p align="center">
   <a href="#-key-features">Features</a> •
   <a href="#-tech-stack">Tech Stack</a> •
   <a href="#-getting-started">Getting Started</a> •
