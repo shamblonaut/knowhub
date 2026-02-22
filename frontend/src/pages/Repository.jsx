@@ -12,12 +12,12 @@ import RecommendPanel from "../components/RecommendPanel";
 import { Link } from "react-router-dom";
 
 export default function Repository() {
-    const queryClient = useQueryClient();
     const [filters, setFilters] = useState({});
     const [searchQuery, setSearchQuery] = useState("");
     const [selected, setSelected] = useState(null);
-
     const isSearching = searchQuery.trim().length > 0;
+    const queryClient = useQueryClient();
+
 
     const { data: browseData, isLoading: browseLoading } = useQuery({
         queryKey: ["resources", filters],
@@ -35,7 +35,20 @@ export default function Repository() {
     const resources = isSearching
         ? searchData?.results || []
         : browseData?.results || [];
+    
     const total = isSearching ? searchData?.count || 0 : browseData?.count || 0;
+    const isProcessing = resources.some(r => r.indexing_status === "processing");
+
+    // Add polling to browse query if processing
+    useQuery({
+        queryKey: ["resources", filters],
+        queryFn: () => getResources(filters),
+        enabled: !isSearching && isProcessing,
+        refetchInterval: 15000,
+    });
+
+
+
 
     const handleDelete = async (id) => {
         try {

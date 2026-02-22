@@ -30,8 +30,18 @@ export default function RAGChat() {
         queryKey: ['subjects', effectiveSemester], queryFn: () => getSubjects(effectiveSemester || null), enabled: !!effectiveSemester
     })
 
-    // Latest sources from most recent assistant message
-    const sources = [...messages].reverse().find(m => m.role === 'assistant' && m.sources?.length)?.sources || []
+    // Aggregate all unique sources from the entire history
+    const allSources = messages.reduce((acc, m) => {
+        if (m.role === 'assistant' && m.sources) {
+            m.sources.forEach(s => {
+                if (!acc.find(prev => prev.resource_id === s.resource_id)) {
+                    acc.push(s);
+                }
+            });
+        }
+        return acc;
+    }, []);
+
 
     useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
 
@@ -120,16 +130,17 @@ export default function RAGChat() {
                 </div>
 
                 {/* Sources panel */}
-                {sources.length > 0 && (
+                {allSources.length > 0 && (
                     <div className="w-52 shrink-0">
                         <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
-                            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Sources ({sources.length})</h3>
+                            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Conversation Sources ({allSources.length})</h3>
                             <div className="space-y-2">
-                                {sources.map((s, i) => <SourceCard key={s.resource_id} source={s} index={i + 1} />)}
+                                {allSources.map((s, i) => <SourceCard key={s.resource_id} source={s} index={i + 1} />)}
                             </div>
                         </div>
                     </div>
                 )}
+
             </div>
         </Layout>
     )

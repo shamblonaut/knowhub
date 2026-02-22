@@ -38,7 +38,8 @@ export function useRAGStream() {
             onNoContext: () => { setIsLoading(false); patchLast({ content: "No relevant material found. Try different filters or rephrase.", streaming: false }) },
             onError: (m) => { setIsLoading(false); patchLast({ content: `Error: ${m}`, streaming: false, error: true }) },
         })
-    }, [isLoading])
+    }, [isLoading, messages])
+
 
     const reset = () => { setMessages([]); setIsLoading(false); buffer.current = '' }
 

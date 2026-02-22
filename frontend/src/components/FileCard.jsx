@@ -26,8 +26,15 @@ export default function FileCard({ resource, onSelect, onDelete }) {
                     {resource.unit && (
                         <span className="text-xs text-gray-400">{resource.unit}</span>
                     )}
+                    {resource.indexing_status === "processing" && (
+                        <Badge type="processing" label="Indexing..." />
+                    )}
+                    {resource.indexing_status === "failed" && (
+                        <Badge type="failed" label="RAG Failed" />
+                    )}
                 </div>
                 <span className="text-xs text-gray-400 shrink-0">
+
                     ↓ {resource.download_count}
                 </span>
             </div>

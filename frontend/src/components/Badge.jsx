@@ -11,7 +11,11 @@ const variants = {
     hod: "bg-primary text-white",
     faculty: "bg-blue-100 text-blue-800",
     student: "bg-gray-100 text-gray-700",
+    processing: "bg-[#e0f2fe] text-[#0369a1]",
+    completed: "bg-[#f0fdf4] text-[#166534]",
+    failed: "bg-red-50 text-red-600",
 };
+
 
 export default function Badge({ type, label }) {
     return (

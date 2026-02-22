@@ -48,8 +48,12 @@ class Resource(me.Document):
 
     # AI search
     embedding = me.ListField(me.FloatField())
+    indexing_status = me.StringField(
+        choices=["none", "processing", "completed", "failed"], default="none"
+    )
 
     upload_date = me.DateTimeField(default=datetime.utcnow)
+
 
     meta = {
         "collection": "resources",

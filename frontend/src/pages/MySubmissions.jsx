@@ -29,6 +29,17 @@ export default function MySubmissions() {
     });
 
     const submissions = data?.results || [];
+    const isProcessing = submissions.some(s => s.indexing_status === "processing");
+
+    // Re-run query with polling if processing
+    useQuery({
+        queryKey: ["my-submissions"],
+        queryFn: getMySubmissions,
+        enabled: isProcessing,
+        refetchInterval: 15000,
+    });
+
+
 
     const handleDelete = async (id) => {
         if (!window.confirm("Are you sure you want to delete this resource?")) return;
@@ -69,8 +80,10 @@ export default function MySubmissions() {
                                     <th className="px-6 py-4 font-medium">Subject</th>
                                     <th className="px-6 py-4 font-medium">Type</th>
                                     <th className="px-6 py-4 font-medium">Date</th>
-                                    <th className="px-6 py-4 font-medium">Status</th>
+                                    <th className="px-6 py-4 font-medium">Approval</th>
+                                    <th className="px-6 py-4 font-medium">Indexing</th>
                                     <th className="px-6 py-4 font-medium text-right">Action</th>
+
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
@@ -96,6 +109,18 @@ export default function MySubmissions() {
                                         <td className="px-6 py-4">
                                             <StatusBadge status={sub.status} />
                                         </td>
+                                        <td className="px-6 py-4">
+                                            {sub.indexing_status === "completed" ? (
+                                                <Badge type="completed" label="Ready" />
+                                            ) : sub.indexing_status === "processing" ? (
+                                                <Badge type="processing" label="Processing..." />
+                                            ) : sub.indexing_status === "failed" ? (
+                                                <Badge type="failed" label="Failed" />
+                                            ) : (
+                                                <span className="text-gray-400 text-xs">-</span>
+                                            )}
+                                        </td>
+
                                         <td className="px-6 py-4 text-right">
                                             {(sub.url || sub.file_url) && (
                                                 <a

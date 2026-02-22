@@ -23,22 +23,21 @@ from .utils import (
 
 def generate_embedding(resource_id):
     """
-    Called in a background thread after a resource is approved.
-    Loads the sentence-transformer model (cached after first load)
-    and saves the embedding to the resource document.
+    Called in a background thread after a resource is uploaded or approved.
+    Saves the semantic embedding to the resource document.
     """
     try:
-        from sentence_transformers import SentenceTransformer
+        from rag.embedder import embed
         from .models import Resource
         from bson import ObjectId
 
-        model = SentenceTransformer("all-MiniLM-L6-v2")
         resource = Resource.objects.get(id=ObjectId(resource_id))
-        text = f"{resource.title} {resource.description} {' '.join(resource.tags)}"
-        resource.embedding = model.encode(text).tolist()
-        resource.save()
+        text = f"{resource.title} {resource.description} {' '.join(resource.tags or [])}"
+        Resource.objects(id=resource.id).update_one(set__embedding=embed(text))
+
     except Exception as e:
         print(f"[Embedding] Failed for {resource_id}: {e}")
+
 
 
 def serialize_subject(subject):
@@ -99,7 +98,9 @@ def serialize_resource(resource, request=None):
         "uploader_name": uploader_name,
         "uploader_role": resource.uploader_role,
         "status": resource.status,
+        "indexing_status": getattr(resource, "indexing_status", "none"),
         "download_count": resource.download_count,
+
         "upload_date": resource.upload_date.isoformat() + "Z",
     }
 
@@ -355,16 +356,16 @@ class ResourceUploadView(APIView):
 
         resource.save()
 
-        # Trigger embedding and RAG pipeline generation in background if approved
-        if status == "approved":
-            threading.Thread(
-                target=generate_embedding, args=(str(resource.id),), daemon=True
-            ).start()
-            threading.Thread(
-                target=process, args=(str(resource.id),), daemon=True
-            ).start()
+        # Trigger embedding and RAG pipeline generation in background
+        threading.Thread(
+            target=generate_embedding, args=(str(resource.id),), daemon=True
+        ).start()
+        threading.Thread(
+            target=process, args=(str(resource.id), resource.status), daemon=True
+        ).start()
 
         return Response(serialize_resource(resource), status=201)
+
 
 
 class ResourceListView(APIView):
@@ -448,9 +449,10 @@ class ResourceDetailView(APIView):
         
         try:
             from rag.models import ResourceChunk
-            ResourceChunk.objects(resource_id=str(resource.id)).delete()
+            ResourceChunk.objects(resource_id=resource.id).delete()
         except Exception:
             pass
+
 
         return Response({"message": "Resource deleted."})
 
@@ -586,13 +588,11 @@ class ResourceApproveView(APIView):
         resource.reviewed_at = datetime.utcnow()
         resource.save()
 
-        # Generate embedding and RAG pipeline now that it's approved
+        # Update RAG pipeline status to 'approved'
         threading.Thread(
-            target=generate_embedding, args=(str(resource.id),), daemon=True
+            target=process, args=(str(resource.id), "approved"), daemon=True
         ).start()
-        threading.Thread(
-            target=process, args=(str(resource.id),), daemon=True
-        ).start()
+
 
         return Response(
             {
@@ -632,7 +632,15 @@ class ResourceRejectView(APIView):
         resource.reviewed_at = datetime.utcnow()
         resource.save()
 
+        # Delete chunks for rejected resource
+        try:
+            from rag.models import ResourceChunk
+            ResourceChunk.objects(resource_id=resource.id).delete()
+        except Exception:
+            pass
+
         return Response(
+
             {
                 "message": "Resource rejected and deleted.",
                 "resource_id": str(resource.id),

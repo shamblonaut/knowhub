@@ -4,7 +4,8 @@ from rag.models import ResourceChunk
 from rag.embedder import embed
 
 def retrieve(query, semester=None, subject_id=None, allowed_subject_ids=None, top_k=5):
-    qs = ResourceChunk.objects(embedding__exists=True)
+    qs = ResourceChunk.objects(embedding__exists=True, status='approved')
+
     if semester:   qs = qs.filter(semester=int(semester))
     if subject_id:
         from bson import ObjectId

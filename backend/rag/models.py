@@ -10,7 +10,9 @@ class ResourceChunk(me.Document):
     chunk_text     = me.StringField(required=True)
     embedding      = me.ListField(me.FloatField())
     page_number    = me.IntField()           # PDF only
+    status         = me.StringField(choices=['pending', 'approved'], default='approved')
 
     meta = {'collection': 'resource_chunks',
+
             'indexes': ['resource_id', 'semester', 'subject_id']}
 

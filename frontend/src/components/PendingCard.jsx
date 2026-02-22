@@ -12,7 +12,14 @@ export default function PendingCard({ resource, onApprove, onReject }) {
                     {resource.subject_code} · {resource.unit}
                 </span>
                 <Badge type="pending" label="Pending" />
+                {resource.indexing_status === "processing" && (
+                    <Badge type="processing" label="Indexing..." />
+                )}
+                {resource.indexing_status === "failed" && (
+                    <Badge type="failed" label="RAG Failed" />
+                )}
             </div>
+
 
             <h3 className="font-semibold text-gray-800 text-sm mb-1">
                 {resource.title}

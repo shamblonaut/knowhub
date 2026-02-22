@@ -18,6 +18,19 @@ export default function Review() {
         queryFn: getPendingResources,
     });
 
+    const pending = data?.results || [];
+    const isProcessing = pending.some(r => r.indexing_status === "processing");
+
+    // Add polling if processing
+    useQuery({
+        queryKey: ["pending"],
+        queryFn: getPendingResources,
+        enabled: isProcessing,
+        refetchInterval: 15000,
+    });
+
+
+
     const approveMutation = useMutation({
         mutationFn: approveResource,
         onSuccess: () => {
@@ -36,7 +49,8 @@ export default function Review() {
         onError: () => toast.error("Rejection failed."),
     });
 
-    const pending = data?.results || [];
+
+
 
     return (
         <Layout>
