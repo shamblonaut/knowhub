@@ -63,7 +63,7 @@ export default function Repository() {
 
     return (
         <Layout>
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div>
                     <h1 className="text-2xl font-bold text-primary">
                         Resource Repository
@@ -76,9 +76,9 @@ export default function Repository() {
                 </div>
                 <Link
                     to="/upload"
-                    className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium"
+                    className="w-full sm:w-auto text-center px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium transition hover:bg-opacity-90 shadow-sm"
                 >
-                    + Upload
+                    + Upload New Resource
                 </Link>
             </div>
 

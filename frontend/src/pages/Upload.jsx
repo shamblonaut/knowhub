@@ -6,7 +6,6 @@ import Layout from "../components/Layout";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { useEffect } from "react";
 
 const ALLOWED = ["pdf", "ppt", "pptx", "doc", "docx", "jpg", "jpeg", "png"];
 
@@ -27,20 +26,16 @@ export default function Upload() {
     const navigate = useNavigate();
     const { user } = useAuth();
 
-    useEffect(() => {
-        if (user?.role === "student" && user?.semester) {
-            setForm((prev) => ({ ...prev, semester: user.semester.toString() }));
-        }
-    }, [user]);
+    const effectiveSemester = user?.role === "student" ? user.semester?.toString() : form.semester;
 
     const { data: semData } = useQuery({
         queryKey: ["semesters"],
         queryFn: getSemesters,
     });
     const { data: subData } = useQuery({
-        queryKey: ["subjects", form.semester],
-        queryFn: () => getSubjects(form.semester || null),
-        enabled: !!form.semester,
+        queryKey: ["subjects", effectiveSemester],
+        queryFn: () => getSubjects(effectiveSemester || null),
+        enabled: !!effectiveSemester,
     });
 
     const mutation = useMutation({
@@ -82,12 +77,14 @@ export default function Upload() {
             fd.append("file", file);
             fd.append("resource_type", "file");
             Object.entries(form).forEach(([k, v]) => {
-                if (v) fd.append(k, v);
+                const value = k === "semester" ? effectiveSemester : v;
+                if (value) fd.append(k, value);
             });
             mutation.mutate(fd);
         } else {
             mutation.mutate({
                 ...form,
+                semester: effectiveSemester,
                 resource_type: "url",
                 tags: form.tags
                     .split(",")
@@ -152,7 +149,7 @@ export default function Upload() {
                             </label>
                             <select
                                 name="semester"
-                                value={form.semester}
+                                value={effectiveSemester || ""}
                                 onChange={handle}
                                 required
                                 disabled={user?.role === "student"}

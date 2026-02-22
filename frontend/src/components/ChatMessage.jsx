@@ -29,14 +29,14 @@ export default function ChatMessage({ role, content, sources = [], streaming }) 
         ${isUser ? 'bg-primary text-white' : 'bg-accent text-white'}`}>
                 {isUser ? '👤' : '🤖'}
             </div>
-            <div className={`max-w-[85%] flex flex-col gap-2 ${isUser ? 'items-end' : ''}`}>
+            <div className={`max-w-[90%] sm:max-w-[85%] flex flex-col gap-2 ${isUser ? 'items-end' : ''}`}>
                 <div className={`relative group/msg rounded-2xl px-4 py-3 text-sm leading-relaxed
           ${isUser ? 'bg-primary text-white rounded-tr-sm shadow-md' : 'bg-white border border-gray-100 shadow-sm text-gray-800 rounded-tl-sm'}`}>
-                    
+
                     {!isUser && content && (
-                        <button 
+                        <button
                             onClick={copyToClipboard}
-                            className="absolute -right-10 top-0 opacity-0 group-hover/msg:opacity-100 p-2 text-gray-400 hover:text-accent transition-all hover:scale-110"
+                            className="absolute right-0 sm:-right-10 -bottom-8 sm:top-0 opacity-0 group-hover/msg:opacity-100 p-2 text-gray-400 hover:text-accent transition-all hover:scale-110"
                             title="Copy message"
                         >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 002-2h4.586a1 1 0 011 .707l3.707 3.707a1 1 0 01.293.707V17a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" /></svg>

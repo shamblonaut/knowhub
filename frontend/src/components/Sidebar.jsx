@@ -1,5 +1,6 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useEffect } from "react";
 
 const NAV = [
     {
@@ -38,23 +39,42 @@ const NAV = [
     { to: "/admin", label: "Admin Panel", icon: "⚙", roles: ["hod"] },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen, onClose }) {
     const { user, logout } = useAuth();
+    const location = useLocation();
+
+    // Close sidebar on route change (for mobile)
+    useEffect(() => {
+        onClose();
+    }, [location.pathname, onClose]);
+
     if (!user) return null;
 
     const visibleNav = NAV.filter((n) => n.roles.includes(user.role));
 
     return (
-        <aside className="w-60 min-h-screen bg-primary text-white flex flex-col shrink-0">
-            {/* Logo */}
-            <div className="px-6 py-5 border-b border-white border-opacity-10">
-                <div className="text-xl font-bold">📚 Corpus</div>
-                <div className="text-xs text-blue-200 mt-0.5">BCA Department</div>
+        <aside
+            className={`fixed inset-y-0 left-0 z-50 w-64 bg-primary text-white flex flex-col transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${isOpen ? "translate-x-0" : "-translate-x-full"
+                }`}
+        >
+            {/* Logo & Close Button */}
+            <div className="px-6 py-5 border-b border-white border-opacity-10 flex items-center justify-between">
+                <div>
+                    <div className="text-xl font-bold">📚 Corpus</div>
+                    <div className="text-xs text-blue-200 mt-0.5">BCA Department</div>
+                </div>
+                <button
+                    onClick={onClose}
+                    className="p-2 -mr-2 text-2xl lg:hidden"
+                    aria-label="Close menu"
+                >
+                    ✕
+                </button>
             </div>
 
             {/* User info */}
             <div className="px-6 py-4 border-b border-white border-opacity-10">
-                <div className="text-sm font-semibold">{user.name}</div>
+                <div className="text-sm font-semibold truncate">{user.name}</div>
                 <div className="text-xs text-blue-200 capitalize">{user.role}</div>
                 {user.role === "student" && (
                     <div className="text-xs text-blue-200 mt-0.5">
@@ -64,7 +84,7 @@ export default function Sidebar() {
             </div>
 
             {/* Nav links */}
-            <nav className="flex-1 py-4 px-3">
+            <nav className="flex-1 py-4 px-3 overflow-y-auto">
                 {visibleNav.map(({ to, label, icon }) => (
                     <NavLink
                         key={to}

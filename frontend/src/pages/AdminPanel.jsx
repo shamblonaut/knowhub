@@ -76,39 +76,41 @@ function SubjectsTab() {
                     <EmptyState title="No subjects added" />
                 ) : (
                     <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-                        <table className="w-full text-left text-sm">
-                            <thead className="bg-gray-50 text-gray-500 font-medium">
-                                <tr>
-                                    <th className="px-4 py-3">Code</th>
-                                    <th className="px-4 py-3">Name</th>
-                                    <th className="px-4 py-3">Sem</th>
-                                    <th className="px-4 py-3">Faculty</th>
-                                    <th className="px-4 py-3 text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-100">
-                                {subjects.map((sub) => (
-                                    <tr key={sub.id} className="hover:bg-gray-50/50">
-                                        <td className="px-4 py-3 font-semibold text-gray-800">
-                                            {sub.code}
-                                        </td>
-                                        <td className="px-4 py-3">{sub.name}</td>
-                                        <td className="px-4 py-3">{sub.semester}</td>
-                                        <td className="px-4 py-3 text-gray-500">
-                                            {sub.faculty_name || "—"}
-                                        </td>
-                                        <td className="px-4 py-3 text-right">
-                                            <button
-                                                onClick={() => deleteMutation.mutate(sub.id)}
-                                                className="text-red-500 hover:text-red-700 font-medium text-xs"
-                                            >
-                                                Delete
-                                            </button>
-                                        </td>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left text-sm">
+                                <thead className="bg-gray-50 text-gray-500 font-medium">
+                                    <tr>
+                                        <th className="px-4 py-3">Code</th>
+                                        <th className="px-4 py-3">Name</th>
+                                        <th className="px-4 py-3">Sem</th>
+                                        <th className="px-4 py-3">Faculty</th>
+                                        <th className="px-4 py-3 text-right">Actions</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+                                    {subjects.map((sub) => (
+                                        <tr key={sub.id} className="hover:bg-gray-50/50">
+                                            <td className="px-4 py-3 font-semibold text-gray-800">
+                                                {sub.code}
+                                            </td>
+                                            <td className="px-4 py-3">{sub.name}</td>
+                                            <td className="px-4 py-3">{sub.semester}</td>
+                                            <td className="px-4 py-3 text-gray-500">
+                                                {sub.faculty_name || "—"}
+                                            </td>
+                                            <td className="px-4 py-3 text-right">
+                                                <button
+                                                    onClick={() => deleteMutation.mutate(sub.id)}
+                                                    className="text-red-500 hover:text-red-700 font-medium text-xs"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 )}
             </div>
@@ -250,49 +252,51 @@ function FacultyTab() {
                     <EmptyState title="No faculty members" />
                 ) : (
                     <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-                        <table className="w-full text-left text-sm">
-                            <thead className="bg-gray-50 text-gray-500 font-medium">
-                                <tr>
-                                    <th className="px-4 py-3">Name</th>
-                                    <th className="px-4 py-3">Email</th>
-                                    <th className="px-4 py-3">Status</th>
-                                    <th className="px-4 py-3 text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-100">
-                                {facultyList.map((fac) => (
-                                    <tr key={fac.id} className="hover:bg-gray-50/50">
-                                        <td className="px-4 py-3 font-semibold text-gray-800">
-                                            {fac.name}
-                                        </td>
-                                        <td className="px-4 py-3">{fac.email}</td>
-                                        <td className="px-4 py-3">
-                                            {fac.is_active ? (
-                                                <Badge type="approved" label="Active" />
-                                            ) : (
-                                                <Badge type="gray" label="Inactive" />
-                                            )}
-                                        </td>
-                                        <td className="px-4 py-3 text-right">
-                                            <button
-                                                onClick={() =>
-                                                    activeMutation.mutate({
-                                                        id: fac.id,
-                                                        isActive: !fac.is_active,
-                                                    })
-                                                }
-                                                className={`${fac.is_active
-                                                    ? "text-red-500 hover:text-red-700"
-                                                    : "text-green-600 hover:text-green-800"
-                                                    } font-medium text-xs`}
-                                            >
-                                                {fac.is_active ? "Deactivate" : "Activate"}
-                                            </button>
-                                        </td>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left text-sm">
+                                <thead className="bg-gray-50 text-gray-500 font-medium">
+                                    <tr>
+                                        <th className="px-4 py-3">Name</th>
+                                        <th className="px-4 py-3">Email</th>
+                                        <th className="px-4 py-3">Status</th>
+                                        <th className="px-4 py-3 text-right">Actions</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+                                    {facultyList.map((fac) => (
+                                        <tr key={fac.id} className="hover:bg-gray-50/50">
+                                            <td className="px-4 py-3 font-semibold text-gray-800">
+                                                {fac.name}
+                                            </td>
+                                            <td className="px-4 py-3">{fac.email}</td>
+                                            <td className="px-4 py-3">
+                                                {fac.is_active ? (
+                                                    <Badge type="approved" label="Active" />
+                                                ) : (
+                                                    <Badge type="gray" label="Inactive" />
+                                                )}
+                                            </td>
+                                            <td className="px-4 py-3 text-right">
+                                                <button
+                                                    onClick={() =>
+                                                        activeMutation.mutate({
+                                                            id: fac.id,
+                                                            isActive: !fac.is_active,
+                                                        })
+                                                    }
+                                                    className={`${fac.is_active
+                                                        ? "text-red-500 hover:text-red-700"
+                                                        : "text-green-600 hover:text-green-800"
+                                                        } font-medium text-xs`}
+                                                >
+                                                    {fac.is_active ? "Deactivate" : "Activate"}
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 )}
             </div>
