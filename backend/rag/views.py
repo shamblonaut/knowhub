@@ -39,13 +39,18 @@ class RAGAskView(APIView):
             for token in stream(messages):
                 yield f"data: {json.dumps({'type':'token','content':token})}\n\n"
 
-            # Deduplicate sources by resource id
-            seen, sources = set(), []
-            for c in chunks:
-                if c['rid'] not in seen:
-                    seen.add(c['rid'])
-                    sources.append({'resource_id':c['rid'],'title':c['title'],
-                                    'code':c['code'],'score':c['score']})
+            # Send all chunks as sources (they match the [1], [2] indices used in prompt)
+            sources = []
+            for i, c in enumerate(chunks):
+                sources.append({
+                    'index': i + 1,
+                    'resource_id': c['rid'],
+                    'title': c['title'],
+                    'code': c['code'],
+                    'page': c.get('page'),
+                    'text': c['text'],
+                    'score': c['score']
+                })
 
             yield f"data: {json.dumps({'type':'sources','sources':sources})}\n\n"
             yield f"data: {json.dumps({'type':'done'})}\n\n"

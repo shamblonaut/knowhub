@@ -131,11 +131,11 @@ export default function RAGChat() {
 
                 {/* Sources panel */}
                 {allSources.length > 0 && (
-                    <div className="w-52 shrink-0">
-                        <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
-                            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Conversation Sources ({allSources.length})</h3>
-                            <div className="space-y-2">
-                                {allSources.map((s, i) => <SourceCard key={s.resource_id} source={s} index={i + 1} />)}
+                    <div className="w-72 shrink-0 border-l border-gray-100 bg-gray-50/50 overflow-y-auto rounded-r-xl">
+                        <div className="p-4">
+                            <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 px-1">References ({allSources.length})</h3>
+                            <div className="space-y-3 pb-4">
+                                {allSources.map((s, i) => <SourceCard key={`${s.resource_id}-${i}`} source={s} index={i + 1} />)}
                             </div>
                         </div>
                     </div>
