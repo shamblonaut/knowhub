@@ -21,6 +21,7 @@ A centralized web portal for academic resource sharing between HOD, Faculty, and
 
 ## Features
 
+
 - **Role-based access** — HOD, Faculty, and Student roles with distinct permissions
 - **Smart Repository** — Upload PDFs, PPTs, DOCs, and images organized by Semester, Subject, and Unit
 - **Gatekeeper Approval** — Student uploads require Faculty approval before going live
@@ -213,10 +214,12 @@ Built at Solve-a-Thon 2026 — Track 1 (BCA)
 ## 📸 Screenshots
 
 ### AI - Features
-![AI - Features](AI%20-%20Features.png)
+<img width="1440" height="786" alt="AI - Features" src="https://github.com/user-attachments/assets/13759020-8d4d-4292-8e5f-5fb8d08958fa" />
+
 
 ### Analytics
-![Analytics](Analytics.png)
+<img width="1423" height="772" alt="Analytics" src="https://github.com/user-attachments/assets/b9f8547d-20cf-4591-ac42-f9dae77ea7a8" />
+
 
 ### Repository
-![Repository](Repository.png)
+<img width="1424" height="781" alt="Repository" src="https://github.com/user-attachments/assets/7f89e047-fa3b-4fff-85ec-d8476bd5d1e1" />
