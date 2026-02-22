@@ -32,8 +32,19 @@ def generate_embedding(resource_id):
         from bson import ObjectId
 
         resource = Resource.objects.get(id=ObjectId(resource_id))
-        text = f"{resource.title} {resource.description} {' '.join(resource.tags or [])}"
+        
+        # Fetch subject to include it in the embedding text
+        from .models import Subject
+        subject_str = ""
+        try:
+            subject = Subject.objects.get(id=resource.subject_id)
+            subject_str = f"{subject.code} {subject.name}"
+        except Exception:
+            pass
+
+        text = f"{resource.title} {resource.description} {subject_str} {' '.join(resource.tags or [])}"
         Resource.objects(id=resource.id).update_one(set__embedding=embed(text))
+
 
     except Exception as e:
         print(f"[Embedding] Failed for {resource_id}: {e}")

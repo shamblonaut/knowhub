@@ -53,23 +53,34 @@ class SearchView(APIView):
             return Response({"query": q, "count": 0, "results": []})
 
         # Embed the query
-        from sentence_transformers import SentenceTransformer
-        model = SentenceTransformer('all-MiniLM-L6-v2')
-        query_embedding = model.encode(q)
+        from rag.embedder import embed
+        query_embedding = embed(q)
+
 
         # Score resources with embeddings
         scored = []
+        MIN_SCORE = 0.2
+        
         for r in resources:
+            semantic_score = 0.0
             if r.embedding:
                 sim = cosine_similarity(
                     [query_embedding],
                     [np.array(r.embedding)]
                 )[0][0]
-            else:
-                # Fallback: score by title keyword match
-                sim = 0.1 if q.lower() in r.title.lower() else 0.0
+                semantic_score = float(sim)
+            
+            # Keyword matching (gives a boost or acts as fallback)
+            keyword_score = 1.0 if q.lower() in r.title.lower() or q.lower() in (r.description or "").lower() else 0.0
+            
+            # Hybrid score: weight semantic highly, but let keywords override if strong
+            final_score = max(semantic_score, keyword_score * 0.6)
+            
+            if final_score >= MIN_SCORE:
+                scored.append((r, final_score))
 
-            scored.append((r, float(sim)))
+
+
 
         # Sort by score descending
         scored.sort(key=lambda x: x[1], reverse=True)

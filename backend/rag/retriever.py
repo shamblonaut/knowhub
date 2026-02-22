@@ -19,7 +19,16 @@ def retrieve(query, semester=None, subject_id=None, allowed_subject_ids=None, to
 
     q_vec  = np.array(embed(query)).reshape(1, -1)
     scores = cosine_similarity(q_vec, np.array([c.embedding for c in chunks]))[0]
-    top    = np.argsort(scores)[::-1][:top_k]
+    
+    MIN_SCORE = 0.35
+    
+    # Get indices of chunks above threshold
+    above_threshold = np.where(scores >= MIN_SCORE)[0]
+    
+    # Sort these by score descending and take top_k
+    top_indices = above_threshold[np.argsort(scores[above_threshold])[::-1][:top_k]]
+
+
 
     return [{
         'text':  chunks[i].chunk_text,
@@ -28,4 +37,5 @@ def retrieve(query, semester=None, subject_id=None, allowed_subject_ids=None, to
         'page':  chunks[i].page_number,
         'rid':   str(chunks[i].resource_id),
         'score': round(float(scores[i]), 3),
-    } for i in top]
+    } for i in top_indices]
+
