@@ -3,6 +3,7 @@ import { getMySubmissions, deleteResource } from "../api/endpoints/resources";
 import Layout from "../components/Layout";
 import Spinner from "../components/Spinner";
 import EmptyState from "../components/EmptyState";
+import Badge from "../components/Badge";
 import { format } from "date-fns";
 
 const StatusBadge = ({ status }) => {

@@ -19,6 +19,11 @@ export default function Layout({ children }) {
                     ☰
                 </button>
                 <div className="ml-3 font-bold text-lg">📚 Corpus</div>
+                {localStorage.getItem("demo_mode") === "true" && (
+                    <span className="ml-2 text-[10px] bg-accent text-white px-1.5 py-0.5 rounded font-bold tracking-wider">
+                        DEMO MODE
+                    </span>
+                )}
             </header>
 
             {/* Sidebar with mobile drawer functionality */}

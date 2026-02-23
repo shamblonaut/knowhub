@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { login } from "../api/endpoints/auth";
@@ -13,7 +13,12 @@ export default function Login() {
     const { login: authLogin } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
+    const [isDemoMode, setIsDemoMode] = useState(() => localStorage.getItem("demo_mode") === "true");
     const from = location.state?.from?.pathname || "/dashboard";
+
+    useEffect(() => {
+        localStorage.setItem("demo_mode", isDemoMode);
+    }, [isDemoMode]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -112,6 +117,42 @@ export default function Login() {
                             {loading ? <Spinner size="sm" /> : "Sign In"}
                         </button>
                     </form>
+
+                    {/* Demo Mode Toggle */}
+                    <div className="mt-6 pt-6 border-t border-gray-100">
+                        <div className="flex items-center justify-between px-1">
+                            <div className="flex flex-col">
+                                <span className="text-xs font-semibold text-gray-700">Demo Mode</span>
+                                <span className="text-[10px] text-gray-400">
+                                    {isDemoMode ? "Using mock data" : "Using live backend"}
+                                </span>
+                            </div>
+                            <button
+                                onClick={() => setIsDemoMode(!isDemoMode)}
+                                role="switch"
+                                aria-checked={isDemoMode}
+                                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none ${isDemoMode ? "bg-accent" : "bg-gray-200"
+                                    }`}
+                            >
+                                <span
+                                    className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${isDemoMode ? "translate-x-5" : "translate-x-1"
+                                        }`}
+                                />
+                            </button>
+                        </div>
+                        {isDemoMode && (
+                            <div className="mt-2 text-[10px] text-accent space-y-1">
+                                <div className="animate-pulse">
+                                    Tip: Use any password with these emails:
+                                </div>
+                                <div className="grid grid-cols-3 gap-2 text-gray-500 font-mono">
+                                    <div title="Head of Department">hod@bca.edu</div>
+                                    <div title="Faculty Member">faculty@bca.edu</div>
+                                    <div title="Student account">student@bca.edu</div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
 
                     <p className="text-center text-sm text-gray-500 mt-6">
                         New student?{" "}

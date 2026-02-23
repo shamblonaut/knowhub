@@ -60,7 +60,14 @@ export default function Sidebar({ isOpen, onClose }) {
             {/* Logo & Close Button */}
             <div className="px-6 py-5 border-b border-white border-opacity-10 flex items-center justify-between">
                 <div>
-                    <div className="text-xl font-bold">📚 Corpus</div>
+                    <div className="flex items-center gap-2">
+                        <div className="text-xl font-bold">📚 Corpus</div>
+                        {localStorage.getItem("demo_mode") === "true" && (
+                            <span className="text-[10px] bg-accent text-white px-1.5 py-0.5 rounded font-bold tracking-wider">
+                                DEMO
+                            </span>
+                        )}
+                    </div>
                     <div className="text-xs text-blue-200 mt-0.5">BCA Department</div>
                 </div>
                 <button
