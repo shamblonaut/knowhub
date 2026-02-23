@@ -2,6 +2,7 @@ from pathlib import Path
 from datetime import timedelta
 import mongoengine
 from dotenv import load_dotenv
+from corsheaders.defaults import default_headers
 
 load_dotenv()
 
@@ -78,11 +79,13 @@ SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
 
-# CORS — allow React dev server
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
+# CORS configuration - Allow all origins for portable Corpus connectivity
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = False
+
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    "ngrok-skip-browser-warning",
 ]
-CORS_ALLOW_CREDENTIALS = True
 
 # File uploads
 MEDIA_URL = "/media/"

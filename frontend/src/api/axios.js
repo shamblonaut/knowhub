@@ -3,6 +3,9 @@ import { API_BASE } from "./config";
 
 const api = axios.create({
     baseURL: API_BASE,
+    headers: {
+        "ngrok-skip-browser-warning": "69420",
+    }
 });
 
 api.interceptors.request.use((config) => {
@@ -10,6 +13,8 @@ api.interceptors.request.use((config) => {
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }
+    // Authorization is already handled by config.headers if provided, 
+    // but we use localStorage here for dynamic updates.
     return config;
 });
 
